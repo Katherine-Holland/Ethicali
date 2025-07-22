@@ -1,53 +1,75 @@
-import streamlit as st
-from web3 import Web3
 import os
+import sys
 from dotenv import load_dotenv
+import streamlit as st
+import re
+from datetime import datetime
 
-# Load environment variables
+# Load .env
 load_dotenv()
 
-# Connect to Sepolia network
-alchemy_url = f"https://eth-sepolia.g.alchemy.com/v2/{os.getenv('ALCHEMY_API_KEY')}"
-web3 = Web3(Web3.HTTPProvider(alchemy_url))
+# Fix ABI path regardless of working directory
+ABI_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "backend", "blockchain", "abi", "contract_abi.json"))
 
-if web3.is_connected():
-    st.success("Connected to Sepolia test network!")
-else:
-    st.error("Failed to connect to Sepolia network. Check your API key and connection.")
+# Add backend path
+BACKEND_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "backend", "blockchain", "scripts"))
+if BACKEND_PATH not in sys.path:
+    sys.path.append(BACKEND_PATH)
 
-# Contract details (replace with actual details)
-contract_address = "0xA570AA4ba24d271af3855d44a5995d90e6FA056c"  # Replace with your contract address
-contract_abi = [
-    {
-        "inputs": [{"internalType": "string", "name": "_description", "type": "string"}],
-        "name": "submitDecision",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function",
-    },
-]
+from blockchain_manager import BlockchainManager
 
-contract = web3.eth.contract(address=contract_address, abi=contract_abi)
+# Sepolia Alchemy URL
+PROVIDER_URL = f"https://eth-sepolia.g.alchemy.com/v2/{os.getenv('ALCHEMY_API_KEY')}"
+CONTRACT_ADDRESS = "0xC62d657394C521Fc5735a6C4cA8daBb7d5369c0b"
 
-# Streamlit Dashboard
-st.title("Compliance Results Dashboard")
+# Try to connect
+try:
+    blockchain_manager = BlockchainManager(CONTRACT_ADDRESS, ABI_PATH, PROVIDER_URL)
+    st.success("✅ Connected to Sepolia network.")
+except Exception as e:
+    st.error("❌ Failed to connect to Sepolia network.")
+    st.exception(e)
+    st.stop()
 
-st.subheader("Fetch Compliance Results")
+# UI
+st.title("📊 Compliance Results Dashboard")
+st.subheader("🔍 Fetch and Decode Compliance Record")
 
-# Input transaction hash
-tx_hash = st.text_input("Enter Transaction Hash:")
+tx_hash = st.text_input("Enter Transaction Hash")
 
 if tx_hash:
     try:
-        # Fetch transaction receipt
-        tx_receipt = web3.eth.get_transaction_receipt(tx_hash)
-        st.write("Raw Transaction Receipt:")
-        st.json(tx_receipt)
+        tx = blockchain_manager.w3.eth.get_transaction(tx_hash)
+        decoded = blockchain_manager.decode_transaction_input(tx)
 
-        # Decode logs
-        st.write("Decoded Logs (if available):")
-        decoded_logs = contract.events.DecisionFinalized().processReceipt(tx_receipt)
-        st.json(decoded_logs)
+        st.subheader("🧾 Decoded Compliance Record")
+        st.success("✅ Record Found and Decoded")
+
+        summary = decoded["args"]["_summary"]
+        secure_hash = decoded["args"]["_hash"]
+        metadata_raw = decoded["args"]["_metadata"]
+
+        # Extract readable timestamp from metadata if present
+        match = re.search(r"(\d{10})$", metadata_raw)
+        if match:
+            timestamp = int(match.group(1))
+            readable_time = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+            metadata = f"{metadata_raw[:-10].strip()} (at {readable_time})"
+        else:
+            metadata = metadata_raw
+
+        st.markdown(f"**Summary:** {summary}")
+        st.markdown(f"**Hash:** {secure_hash}")
+        st.markdown(f"**Metadata:** {metadata}")
+
+        st.subheader("📦 Transaction Info")
+        st.json({
+            "From": tx["from"],
+            "To": tx["to"],
+            "Gas Used": tx["gas"],
+            "Nonce": tx["nonce"],
+            "Block Number": tx["blockNumber"]
+        })
 
     except Exception as e:
-        st.error(f"Error fetching transaction: {e}")
+        st.error(f"❌ Error: {e}")

@@ -75,6 +75,19 @@ class BlockchainManager:
         except Exception as e:
             raise RuntimeError(f"Error uploading compliance summary: {e}")
 
+    def decode_transaction_input(self, transaction):
+    
+        try:
+            function_input = transaction.input
+            function_obj, function_args = self.contract.decode_function_input(function_input)
+            return {
+                "function_name": function_obj.fn_name,
+                "args": function_args
+            }
+        except Exception as e:
+            raise ValueError(f"Failed to decode transaction input: {e}")
+
+
     def fetch_compliance_summary(self, record_id):
         """
         Fetch a compliance summary from the blockchain.
