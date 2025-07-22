@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-ethers");
 require("dotenv").config();
+require("hardhat-abi-exporter");
 
 module.exports = {
   solidity: {
@@ -26,5 +27,13 @@ module.exports = {
       url: "https://eth-sepolia.g.alchemy.com/v2/REDACTED_ALCHEMY_KEY_1",
       accounts: [`0x${process.env.PRIVATE_KEY}`],
     },
+  },
+  abiExporter: {
+    path: "./backend/blockchain/abi",
+    runOnCompile: true,
+    clear: true,
+    flat: true,
+    spacing: 2,
+    pretty: true,
   },
 };

@@ -103,7 +103,7 @@ class BlockchainManager:
             raise RuntimeError(f"Error fetching event logs: {e}")
 
 # Adjusted ABI path to reflect actual structure
-base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "blockchain", "abi"))
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "blockchain", "abi"))
 abi_path = os.path.join(base_dir, "contract_abi.json")
 
 # Updated deployed contract address
