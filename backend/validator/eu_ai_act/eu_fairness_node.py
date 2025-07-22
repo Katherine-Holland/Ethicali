@@ -1,3 +1,5 @@
+import pandas as pd
+
 class FairnessNode:
     def __init__(self, thresholds):
         self.thresholds = thresholds
@@ -44,3 +46,16 @@ class FairnessNode:
             "compliant": overall_compliance,
             "features": results,
         }
+
+# ✅ Wrapper for validator system
+def validate_fairness(dataset_path, algorithm_path=None):
+    dataset = pd.read_csv(dataset_path)
+
+    thresholds = {
+        "gender": 0.15,
+        "ethnicity": 0.10,
+        "age_group": 0.10,
+    }
+
+    node = FairnessNode(thresholds)
+    return node.evaluate_dataset(dataset)

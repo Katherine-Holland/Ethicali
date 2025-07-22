@@ -1,3 +1,5 @@
+import pandas as pd
+
 class BiasDetectionNode:
     def __init__(self, thresholds, optional_features=None):
         self.thresholds = thresholds
@@ -33,7 +35,6 @@ class BiasDetectionNode:
                 }
                 overall_compliance = overall_compliance and compliant
             elif feature in self.optional_features:
-                # Optional features do not affect compliance
                 results[feature] = {
                     "compliant": True,
                     "representation": {},
@@ -74,7 +75,6 @@ class BiasDetectionNode:
                 }
                 overall_compliance = overall_compliance and compliant
             elif feature in self.optional_features:
-                # Optional features do not affect compliance
                 results[feature] = {
                     "compliant": True,
                     "weights": {},
@@ -92,7 +92,6 @@ class BiasDetectionNode:
                 }
                 overall_compliance = False
 
-        # Optional: Add a check to ensure weights sum to 1 (normalization)
         for feature, weights in algorithm.get("weights", {}).items():
             if sum(weights.values()) != 1:
                 results[feature]["warning"] = "Weights do not sum to 1, which may indicate bias."
@@ -101,3 +100,32 @@ class BiasDetectionNode:
             "compliant": overall_compliance,
             "features": results,
         }
+
+# ✅ Wrapper function used by the validator node
+def validate_bias(dataset_path, algorithm_path=None):
+    thresholds = {
+        "gender": 0.2,
+        "ethnicity": 0.1,
+        "age_group": 0.15,
+    }
+
+    detector = BiasDetectionNode(thresholds)
+    dataset = pd.read_csv(dataset_path)
+    results = detector.evaluate_dataset(dataset)
+
+    if algorithm_path:
+        with open(algorithm_path, "r") as f:
+            algo_code = f.read()
+
+        # Temporary mock: parse real weights from algo_code later
+        mock_algo = {
+            "weights": {
+                "gender": {"male": 0.5, "female": 0.5},
+                "ethnicity": {"group1": 0.9, "group2": 0.05, "group3": 0.05}
+            }
+        }
+
+        algo_results = detector.evaluate_algorithm(mock_algo)
+        results["algorithm_bias"] = algo_results
+
+    return results
