@@ -1,15 +1,16 @@
 import pandas as pd
+import json
 
 class AccountabilityNode:
     def __init__(self, required_metadata=None):
         self.required_metadata = required_metadata or ["timestamp", "version", "decision_log"]
 
     def evaluate_dataset(self, dataset):
-        missing_metadata = [meta for meta in self.required_metadata if meta not in dataset.columns]
+        missing = [meta for meta in self.required_metadata if meta not in dataset.columns]
         return {
-            "compliant": not missing_metadata,
-            "missing_metadata": missing_metadata,
-            "reason": f"Missing mandatory metadata: {missing_metadata}" if missing_metadata else "All metadata present",
+            "compliant": not missing,
+            "missing_metadata": missing,
+            "reason": f"Missing mandatory metadata: {missing}" if missing else "All metadata present",
         }
 
     def evaluate_algorithm(self, algorithm):
@@ -20,11 +21,52 @@ class AccountabilityNode:
             "reason": f"Missing mandatory keys: {missing_keys}" if missing_keys else "All keys present",
         }
 
-# ✅ Wrapper for validator system
-def validate_accountability(dataset_path, algorithm_path=None):
-    dataset = pd.read_csv(dataset_path)
-
+# ✅ Wrapper function for validator node
+def validate_accountability(dataset_path=None, algorithm_path=None):
     required_metadata = ["timestamp", "version", "decision_log"]
     node = AccountabilityNode(required_metadata)
 
-    return node.evaluate_dataset(dataset)
+    result = {}
+
+    # Dataset
+    if dataset_path:
+        try:
+            dataset = pd.read_csv(dataset_path)
+            result["dataset"] = node.evaluate_dataset(dataset)
+        except Exception as e:
+            result["dataset"] = {
+                "status": "error",
+                "message": f"Dataset error: {str(e)}"
+            }
+    else:
+        result["dataset"] = {
+            "status": "skipped",
+            "message": "No dataset provided"
+        }
+
+    # Algorithm
+    if algorithm_path:
+        try:
+            with open(algorithm_path, "r") as f:
+                algo_code = f.read()
+
+            # Placeholder – swap with real parser
+            mock_algo = {
+                "timestamp": "2025-07-21T12:34:56",
+                "version": "1.0",
+                "decision_log": ["decision1", "decision2"]
+            }
+
+            result["algorithm"] = node.evaluate_algorithm(mock_algo)
+        except Exception as e:
+            result["algorithm"] = {
+                "status": "error",
+                "message": f"Algorithm error: {str(e)}"
+            }
+    else:
+        result["algorithm"] = {
+            "status": "skipped",
+            "message": "No algorithm provided"
+        }
+
+    return result

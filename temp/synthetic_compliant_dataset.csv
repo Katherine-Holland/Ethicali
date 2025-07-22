@@ -1,0 +1,11 @@
+id,gender,ethnicity,age_group,timestamp,version,decision_log
+1,male,group1,18-25,2024-01-01,1.0,accepted
+2,female,group2,26-35,2024-01-01,1.0,rejected
+3,male,group3,36-45,2024-01-01,1.0,accepted
+4,female,group1,18-25,2024-01-01,1.0,rejected
+5,male,group2,26-35,2024-01-01,1.0,accepted
+6,female,group3,36-45,2024-01-01,1.0,rejected
+7,male,group1,18-25,2024-01-01,1.0,accepted
+8,female,group2,26-35,2024-01-01,1.0,rejected
+9,male,group3,36-45,2024-01-01,1.0,accepted
+10,female,group1,18-25,2024-01-01,1.0,rejected

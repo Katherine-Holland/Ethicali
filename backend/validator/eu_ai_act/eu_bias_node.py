@@ -1,9 +1,10 @@
 import pandas as pd
+import json
 
 class BiasDetectionNode:
     def __init__(self, thresholds, optional_features=None):
         self.thresholds = thresholds
-        self.optional_features = optional_features or []  # List of optional features
+        self.optional_features = optional_features or []
 
     def evaluate_dataset(self, dataset):
         results = {}
@@ -11,7 +12,7 @@ class BiasDetectionNode:
 
         for feature, threshold in self.thresholds.items():
             if feature in dataset:
-                feature_data = dataset[feature].dropna()  # Handle missing values
+                feature_data = dataset[feature].dropna()
                 if feature_data.empty:
                     results[feature] = {
                         "compliant": False,
@@ -92,8 +93,9 @@ class BiasDetectionNode:
                 }
                 overall_compliance = False
 
+        # Extra check: weights must sum to 1
         for feature, weights in algorithm.get("weights", {}).items():
-            if sum(weights.values()) != 1:
+            if abs(sum(weights.values()) - 1.0) > 0.01:
                 results[feature]["warning"] = "Weights do not sum to 1, which may indicate bias."
 
         return {
@@ -101,8 +103,8 @@ class BiasDetectionNode:
             "features": results,
         }
 
-# ✅ Wrapper function used by the validator node
-def validate_bias(dataset_path, algorithm_path=None):
+# ✅ Wrapper for the validator node (called by `validate_eu.py`)
+def validate_bias(dataset_path=None, algorithm_path=None):
     thresholds = {
         "gender": 0.2,
         "ethnicity": 0.1,
@@ -110,22 +112,36 @@ def validate_bias(dataset_path, algorithm_path=None):
     }
 
     detector = BiasDetectionNode(thresholds)
-    dataset = pd.read_csv(dataset_path)
-    results = detector.evaluate_dataset(dataset)
 
+    dataset_results = {"status": "skipped", "message": "No dataset provided"}
+    algorithm_results = {"status": "skipped", "message": "No algorithm provided"}
+
+    # Dataset bias check
+    if dataset_path:
+        try:
+            dataset = pd.read_csv(dataset_path)
+            dataset_results = detector.evaluate_dataset(dataset)
+        except Exception as e:
+            dataset_results = {"status": "error", "message": str(e)}
+
+    # Algorithm bias check
     if algorithm_path:
-        with open(algorithm_path, "r") as f:
-            algo_code = f.read()
+        try:
+            with open(algorithm_path, "r") as f:
+                algo_code = f.read()
+                # Mock: You can improve this later with real parsing
+                algo = {
+                    "weights": {
+                        "gender": {"male": 0.5, "female": 0.5},
+                        "ethnicity": {"group1": 0.9, "group2": 0.05, "group3": 0.05}
+                    },
+                    "description": "Sample ML model"
+                }
+                algorithm_results = detector.evaluate_algorithm(algo)
+        except Exception as e:
+            algorithm_results = {"status": "error", "message": str(e)}
 
-        # Temporary mock: parse real weights from algo_code later
-        mock_algo = {
-            "weights": {
-                "gender": {"male": 0.5, "female": 0.5},
-                "ethnicity": {"group1": 0.9, "group2": 0.05, "group3": 0.05}
-            }
-        }
-
-        algo_results = detector.evaluate_algorithm(mock_algo)
-        results["algorithm_bias"] = algo_results
-
-    return results
+    return {
+        "dataset": dataset_results,
+        "algorithm": algorithm_results,
+    }

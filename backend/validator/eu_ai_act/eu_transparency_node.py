@@ -9,22 +9,30 @@ class TransparencyNode:
         return {
             "compliant": not missing_columns,
             "missing_columns": missing_columns,
-            "reason": f"Missing columns: {missing_columns}" if missing_columns else "All required columns present",
+            "reason": f"Missing columns: {missing_columns}" if missing_columns else "All required columns present"
         }
 
-    def evaluate_algorithm(self, algorithm):
-        required_keys = ["weights", "description"]
-        missing_keys = [key for key in required_keys if key not in algorithm]
-        return {
-            "compliant": not missing_keys,
-            "missing_keys": missing_keys,
-            "reason": f"Missing keys: {missing_keys}" if missing_keys else "All required keys present",
-        }
-
-# ✅ Wrapper function for validator system
-def validate_transparency(dataset_path, algorithm_path=None):
+# ✅ Wrapper function for validator node
+def validate_transparency(dataset_path=None, algorithm_path=None):
     required_columns = ["id", "gender", "ethnicity", "age_group"]
-    dataset = pd.read_csv(dataset_path)
-
     node = TransparencyNode(required_columns)
-    return node.evaluate_dataset(dataset)
+
+    results = {}
+
+    if dataset_path:
+        try:
+            dataset = pd.read_csv(dataset_path)
+            results = node.evaluate_dataset(dataset)
+        except Exception as e:
+            results = {
+                "status": "error",
+                "message": f"Dataset error: {str(e)}"
+            }
+    else:
+        results = {
+            "status": "skipped",
+            "message": "No dataset provided"
+        }
+
+    # Algorithm transparency not required yet — skipping
+    return results

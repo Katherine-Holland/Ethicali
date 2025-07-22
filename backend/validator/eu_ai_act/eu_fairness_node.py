@@ -7,6 +7,7 @@ class FairnessNode:
     def evaluate_dataset(self, dataset):
         results = {}
         overall_compliance = True
+
         for feature, threshold in self.thresholds.items():
             if feature in dataset:
                 feature_data = dataset[feature].dropna()
@@ -47,10 +48,8 @@ class FairnessNode:
             "features": results,
         }
 
-# ✅ Wrapper for validator system
-def validate_fairness(dataset_path, algorithm_path=None):
-    dataset = pd.read_csv(dataset_path)
-
+# ✅ Wrapper for validator orchestration
+def validate_fairness(dataset_path=None, algorithm_path=None):
     thresholds = {
         "gender": 0.15,
         "ethnicity": 0.10,
@@ -58,4 +57,21 @@ def validate_fairness(dataset_path, algorithm_path=None):
     }
 
     node = FairnessNode(thresholds)
-    return node.evaluate_dataset(dataset)
+    results = {}
+
+    if dataset_path:
+        try:
+            dataset = pd.read_csv(dataset_path)
+            results = node.evaluate_dataset(dataset)
+        except Exception as e:
+            results = {
+                "status": "error",
+                "message": f"Dataset error: {str(e)}"
+            }
+    else:
+        results = {
+            "status": "skipped",
+            "message": "No dataset provided"
+        }
+
+    return results
