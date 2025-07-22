@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-8NQV7JHTPV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-8NQV7JHTPV');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="description" content="Ethicali - AI Compliance for Startups">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ethicali - AI Compliance</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+  
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <meta name="google-site-verification" content="4RMGRluhjeBOrpYBJw6V4Nj-HW1aGtlk9TKNm_78pds">
+  <meta name="google-site-verification" content="SFAwyJkQPbCpId35dsvPMNmxduSV0q5puYlqFVCl2B4" />
+  
+  <style>
+    /* Reset & Basic Setup */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #2d2d2d; /* Dark Charcoal Grey */
+      color: #f4f4f4; /* Off-white text */
+    }
+
+    /* Hero Section */
+    .hero {
+      background: url("ethic.jpeg") center/cover no-repeat;
+      width: 100%;
+      height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1;
+    }
+
+    .hero > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 500;
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      color: #e6e6e6;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto 2rem auto;
+      line-height: 1.6;
+    }
+
+    /* Call-to-Action Form */
+    .cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-bottom: 2rem; 
+    }
+
+    input[type="email"] {
+      padding: 0.75rem 1rem;
+      border: 1px solid #1d1d1d;
+      border-radius: 5px;
+      font-size: 1rem;
+      background-color: #3d3d3d;
+      color: #f4f4f4;
+      width: 300px;
+      max-width: 100%;
+    }
+
+    input[type="email"]::placeholder {
+      color: #bbb;
+    }
+
+    button {
+      background-color: #1d5a7e;
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #0f3e5a;
+    }
+
+    /* Features Section */
+    .features {
+      background-color: #1a1a1a;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .features h2 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: #e6e6e6;
+    }
+
+    .features ul {
+      list-style: none;
+      margin: 0 auto;
+      max-width: 800px;
+      text-align: left;
+    }
+
+    .features li {
+      font-size: 1.1rem;
+      padding: 0.75rem;
+      border-bottom: 1px solid #444;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: #0c0a0a;
+    }
+
+    footer p {
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      .hero p {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>ETHICALI</h1>
+    <p>
+      The Global AI Compliance Framework Tool.
+      <br>
+      <br>
+      <i>An AI compliance assistant for real-time risk management.</i>
+      <br>
+      <br>
+      Ensure your AI systems are compliant in seconds, <br>
+      while maintaining the privacy of your data and algorithms.
+    </p>
+
+    <form action="https://getform.io/f/akkkjmoa" method="POST" class="cta">
+      <input type="email" name="email" placeholder="Enter your email address" required />
+      <button type="submit">Get First Access</button>
+    </form>
+
+    <p style="font-style: italic;">AI compliance made simple. Let's build a better future, faster.</p>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <h2>Why Ethicali?</h2>
+    <ul>
+      <li><strong>Instant Compliance Checks:</strong> 
+        <p>Ensure your AI models adhere to global regulations in seconds.</p>
+      </li>
+      <li><strong>Privacy-Preserving Compliance:</strong> 
+        <p>Get compliance assurance without exposing your proprietary data.</p>
+      </li>
+      <li><strong>Custom Compliance Reports:</strong>
+        <p>Generate and store audit-ready compliance reports effortlessly.</p>
+      </li>
+      <li><strong>For Startups & Scaleups:</strong>
+        <p>Designed specifically for businesses without dedicated compliance teams.</p>
+      </li>
+      <li><strong>Regulatory Intelligence:</strong>
+        <p>Stay ahead of AI laws and adapt instantly to policy changes.</p>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Ethicali. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
