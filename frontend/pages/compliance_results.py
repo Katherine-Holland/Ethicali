@@ -1,9 +1,10 @@
 import os
 import sys
-from dotenv import load_dotenv
-import streamlit as st
+import time
 import re
 from datetime import datetime
+import streamlit as st
+from dotenv import load_dotenv
 
 # Load .env
 load_dotenv()
@@ -11,18 +12,22 @@ load_dotenv()
 # Fix ABI path regardless of working directory
 ABI_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "backend", "blockchain", "abi", "contract_abi.json"))
 
-# Add backend path
-BACKEND_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "backend", "blockchain", "scripts"))
-if BACKEND_PATH not in sys.path:
-    sys.path.append(BACKEND_PATH)
+# Add backend blockchain paths
+BLOCKCHAIN_SCRIPTS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "backend", "blockchain", "scripts"))
+BLOCKCHAIN_UTILS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "backend", "blockchain", "utils"))
+
+for path in [BLOCKCHAIN_SCRIPTS_PATH, BLOCKCHAIN_UTILS_PATH]:
+    if path not in sys.path:
+        sys.path.append(path)
 
 from blockchain_manager import BlockchainManager
+from upload_to_chain import upload_compliance_result
 
-# Sepolia Alchemy URL
+# Sepolia Alchemy URL and contract address
 PROVIDER_URL = f"https://eth-sepolia.g.alchemy.com/v2/{os.getenv('ALCHEMY_API_KEY')}"
-CONTRACT_ADDRESS = "0xC62d657394C521Fc5735a6C4cA8daBb7d5369c0b"
+CONTRACT_ADDRESS = os.getenv("CONTRACT_ADDRESS")  # make sure this is set in your .env
 
-# Try to connect
+# Connect to blockchain
 try:
     blockchain_manager = BlockchainManager(CONTRACT_ADDRESS, ABI_PATH, PROVIDER_URL)
     st.success("✅ Connected to Sepolia network.")
@@ -31,7 +36,9 @@ except Exception as e:
     st.exception(e)
     st.stop()
 
-# UI
+# ───────────────────────────────────────────────────────────────
+# 🧾 Section 1: Fetch and Decode Compliance Record
+# ───────────────────────────────────────────────────────────────
 st.title("📊 Compliance Results Dashboard")
 st.subheader("🔍 Fetch and Decode Compliance Record")
 
@@ -49,7 +56,7 @@ if tx_hash:
         secure_hash = decoded["args"]["_hash"]
         metadata_raw = decoded["args"]["_metadata"]
 
-        # Extract readable timestamp from metadata if present
+        # Extract readable timestamp if included in metadata
         match = re.search(r"(\d{10})$", metadata_raw)
         if match:
             timestamp = int(match.group(1))
@@ -73,3 +80,35 @@ if tx_hash:
 
     except Exception as e:
         st.error(f"❌ Error: {e}")
+
+# ───────────────────────────────────────────────────────────────
+# 📤 Section 2: Submit New Compliance Record to Blockchain
+# ───────────────────────────────────────────────────────────────
+st.markdown("---")
+st.header("📝 Submit New Compliance Result to Audit Ledger")
+
+# Use session state or fallback defaults
+selected_framework = st.session_state.get("selected_framework", "EU AI Act")
+overall_status = st.session_state.get("overall_status", "Passed")
+hash_of_report = st.session_state.get("hash_of_report", "abc123securehash456")
+report_timestamp = int(time.time())
+
+st.markdown(f"**Framework:** `{selected_framework}`")
+st.markdown(f"**Result:** `{overall_status}`")
+st.markdown(f"**Hash:** `{hash_of_report}`")
+
+if st.button("📤 Submit to Audit Ledger"):
+    with st.spinner("Submitting compliance record..."):
+        try:
+            tx_hash = upload_compliance_result(
+                framework=selected_framework,
+                overall_status=overall_status,
+                hash_value=hash_of_report,
+                metadata=f"Generated on {report_timestamp}"
+            )
+            st.success("✅ Record submitted to audit ledger.")
+            st.markdown(f"🔗 **Tx Hash**: `{tx_hash}`")
+            st.markdown(f"📅 **Timestamp**: {report_timestamp}")
+        except Exception as e:
+            st.error("❌ Failed to submit record.")
+            st.exception(e)

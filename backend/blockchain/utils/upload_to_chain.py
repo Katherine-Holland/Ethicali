@@ -53,3 +53,5 @@ def upload_compliance_result(framework, overall_status, hash_value, metadata):
     print("🔗 Tx Hash:", receipt.transactionHash.hex())
     print("🧾 Summary:", summary)
     print("🔒 Metadata:", metadata)
+
+    return receipt.transactionHash.hex()  # ✅ Return the tx hash!
