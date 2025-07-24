@@ -60,6 +60,11 @@ if (uploaded_file or algorithm_file) and framework_choice:
 
             validate_function = getattr(validate_module, method_name)
             result = validate_function(dataset_path, algorithm_path)
+            from backend.logging.audit_logger import save_audit_log 
+            save_audit_log(
+                result, framework_choice, dataset_path, algorithm_path
+            )
+
 
             st.success("✅ Validation Complete")
             for key, res in result.items():
