@@ -1,0 +1,224 @@
+{
+    "id": "bcb9ea82-f7ab-48a8-88a6-1d87146a70b3",
+    "timestamp": "2025-07-26T15:01:35.730831Z",
+    "framework": "EU AI Act",
+    "dataset": "synthetic_healthcare_dataset.csv",
+    "algorithm": "synthetic_algorithm.json",
+    "results": {
+        "bias": {
+            "dataset": {
+                "dataset": {
+                    "compliant": false,
+                    "features": {
+                        "gender": {
+                            "compliant": false,
+                            "representation": {},
+                            "below_threshold": {},
+                            "threshold": 0.2,
+                            "reason": "Feature not found in dataset"
+                        },
+                        "ethnicity": {
+                            "compliant": false,
+                            "representation": {},
+                            "below_threshold": {},
+                            "threshold": 0.1,
+                            "reason": "Feature not found in dataset"
+                        },
+                        "age_group": {
+                            "compliant": false,
+                            "representation": {},
+                            "below_threshold": {},
+                            "threshold": 0.15,
+                            "reason": "Feature not found in dataset"
+                        }
+                    }
+                },
+                "algorithm": {
+                    "status": "skipped",
+                    "message": "No algorithm provided"
+                }
+            },
+            "algorithm": {
+                "dataset": {
+                    "status": "skipped",
+                    "message": "No dataset provided"
+                },
+                "algorithm": {
+                    "compliant": false,
+                    "features": {
+                        "gender": {
+                            "compliant": true,
+                            "weights": {
+                                "male": 0.5,
+                                "female": 0.5
+                            },
+                            "below_threshold": {},
+                            "threshold": 0.2,
+                            "reason": "Meets threshold"
+                        },
+                        "ethnicity": {
+                            "compliant": false,
+                            "weights": {
+                                "group1": 0.9,
+                                "group2": 0.05,
+                                "group3": 0.05
+                            },
+                            "below_threshold": {
+                                "group2": 0.05,
+                                "group3": 0.05
+                            },
+                            "threshold": 0.1,
+                            "reason": "Below threshold"
+                        }
+                    }
+                }
+            }
+        },
+        "transparency": {
+            "compliant": false,
+            "missing_columns": [
+                "id",
+                "gender",
+                "ethnicity",
+                "age_group"
+            ],
+            "reason": "Missing columns: ['id', 'gender', 'ethnicity', 'age_group']"
+        },
+        "fairness": {
+            "compliant": false,
+            "features": {
+                "gender": {
+                    "compliant": false,
+                    "representation": {},
+                    "below_threshold": {},
+                    "threshold": 0.15,
+                    "reason": "Feature not found in dataset"
+                },
+                "ethnicity": {
+                    "compliant": false,
+                    "representation": {},
+                    "below_threshold": {},
+                    "threshold": 0.1,
+                    "reason": "Feature not found in dataset"
+                },
+                "age_group": {
+                    "compliant": false,
+                    "representation": {},
+                    "below_threshold": {},
+                    "threshold": 0.1,
+                    "reason": "Feature not found in dataset"
+                }
+            }
+        },
+        "accountability": {
+            "dataset": {
+                "dataset": {
+                    "compliant": false,
+                    "missing_metadata": [
+                        "timestamp",
+                        "version",
+                        "decision_log"
+                    ],
+                    "reason": "Missing mandatory metadata: ['timestamp', 'version', 'decision_log']"
+                },
+                "algorithm": {
+                    "status": "skipped",
+                    "message": "No algorithm provided"
+                }
+            },
+            "algorithm": {
+                "compliant": true,
+                "missing_keys": [],
+                "reason": "All keys present"
+            }
+        },
+        "risk": {
+            "compliant": false,
+            "high_risk_fields": {
+                "health_condition": {
+                    "present": false,
+                    "compliant": false,
+                    "reason": "Missing expected high-risk field"
+                },
+                "credit_score": {
+                    "present": false,
+                    "compliant": false,
+                    "reason": "Missing expected high-risk field"
+                },
+                "biometric_data": {
+                    "present": false,
+                    "compliant": false,
+                    "reason": "Missing expected high-risk field"
+                }
+            },
+            "missing_data_report": {
+                "Patient_ID": {
+                    "missing_ratio": 0.0,
+                    "compliant": "True"
+                },
+                "Gender": {
+                    "missing_ratio": 0.12,
+                    "compliant": "True"
+                },
+                "Age_Group": {
+                    "missing_ratio": 0.0,
+                    "compliant": "True"
+                },
+                "Region": {
+                    "missing_ratio": 0.0,
+                    "compliant": "True"
+                }
+            }
+        },
+        "explainability": {
+            "dataset_analysis": {
+                "feature_count": 4,
+                "max_allowed": 30,
+                "compliant": true,
+                "reason": "Acceptable number of features"
+            },
+            "algorithm_analysis": {
+                "model_type_detected": null,
+                "compliant_model_type": false,
+                "feature_count": null,
+                "feature_compliance": false,
+                "reason": "Model type not clearly explainable"
+            },
+            "compliant": false
+        },
+        "robustness": {
+            "dataset_analysis": {
+                "compliant": true,
+                "details": {
+                    "Patient_ID": {
+                        "compliant": "True",
+                        "mean_difference_ratio": 0.0002,
+                        "threshold": 0.1,
+                        "reason": "Stable under noise"
+                    }
+                }
+            },
+            "compliant": true
+        },
+        "oversight": {
+            "algorithm_analysis": {
+                "compliant": false,
+                "fields": {
+                    "human_review_enabled": {
+                        "compliant": false,
+                        "reason": "Field missing"
+                    },
+                    "intervention_points": {
+                        "compliant": false,
+                        "reason": "Field missing"
+                    },
+                    "override_capability": {
+                        "compliant": false,
+                        "reason": "Field missing"
+                    }
+                }
+            },
+            "compliant": false
+        }
+    }
+}

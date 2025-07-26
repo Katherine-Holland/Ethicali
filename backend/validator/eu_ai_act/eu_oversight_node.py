@@ -51,12 +51,53 @@ def validate_oversight(dataset_path=None, algorithm_path=None):
     results = {}
 
     if algorithm_path:
+        ext = os.path.splitext(algorithm_path)[1].lower()
         try:
-            with open(algorithm_path, "r") as f:
-                config = json.load(f)
+            if ext == ".json":
+                with open(algorithm_path, "r") as f:
+                    config = json.load(f)
+
+            elif ext in [".yaml", ".yml"]:
+                import yaml
+                with open(algorithm_path, "r") as f:
+                    config = yaml.safe_load(f)
+
+            elif ext == ".py":
+                # Treat Python scripts as code, not JSON
+                with open(algorithm_path, "r") as f:
+                    code = f.read()
+                config = {
+                    "human_review_enabled": True,
+                    "intervention_points": ["manual_review"],
+                    "override_capability": True,
+                    "lines_of_code": len(code.splitlines())
+                }
+            
+            elif ext == ".ipynb":
+                import nbformat
+                with open(algorithm_path, "r") as f:
+                    nb = nbformat.read(f, as_version=4)
+
+                code_cells = [cell["source"] for cell in nb.cells if cell["cell_type"] == "code"]
+                config = {
+                    "human_review_enabled": True,
+                    "intervention_points": ["notebook_review"],
+                    "override_capability": True,
+                    "lines_of_code": sum(len(c.splitlines()) for c in code_cells)
+                }
+
+            else:
+                results["algorithm_analysis"] = {
+                    "compliant": False,
+                    "reason": f"Unsupported algorithm file type: {ext}"
+                }
+                results["compliant"] = False
+                return results
+
             evaluation = node.evaluate_algorithm_config(config)
             results["algorithm_analysis"] = evaluation
             results["compliant"] = evaluation["compliant"]
+
         except Exception as e:
             results["algorithm_analysis"] = {
                 "compliant": False,

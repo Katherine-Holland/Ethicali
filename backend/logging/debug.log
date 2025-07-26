@@ -1,0 +1,186 @@
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/frontend/pages/agent_drift_dashboard.py", line 71, in <module>
+    result = validate_agent(conversation)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/eu_agent_node.py", line 12, in validate_agent
+    with open(agent_log_path, "r") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not dict
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/frontend/pages/agent_drift_dashboard.py", line 71, in <module>
+    result = validate_agent(conversation)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/eu_agent_node.py", line 12, in validate_agent
+    with open(agent_log_path, "r") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not list
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/frontend/pages/agent_drift_dashboard.py", line 71, in <module>
+    result = validate_agent(conversation)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/eu_agent_node.py", line 12, in validate_agent
+    with open(agent_log_path, "r") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not list
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/validate_eu.py", line 45, in validate_eu_framework
+    agent_results = to_json_safe(validate_agent(conversation))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/eu_agent_node.py", line 12, in validate_agent
+    with open(agent_log_path, "r") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not list
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/validate_eu.py", line 45, in validate_eu_framework
+    agent_results = to_json_safe(validate_agent(conversation))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/eu_agent_node.py", line 12, in validate_agent
+    with open(agent_log_path, "r") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not list
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/validate_eu.py", line 45, in validate_eu_framework
+    agent_results = to_json_safe(validate_agent(conversation))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/eu_agent_node.py", line 12, in validate_agent
+    with open(agent_log_path, "r") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not list
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/validate_eu.py", line 45, in validate_eu_framework
+    agent_results = to_json_safe(validate_agent(conversation))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/eu_agent_node.py", line 12, in validate_agent
+    with open(agent_log_path, "r") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not list
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/validate_eu.py", line 46, in validate_eu_framework
+    agent_results = to_json_safe(validate_agent(conversation))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/eu_agent_node.py", line 12, in validate_agent
+    with open(agent_log_path, "r") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not list
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/validate_eu.py", line 46, in validate_eu_framework
+    agent_results = to_json_safe(validate_agent(conversation))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/eu_agent_node.py", line 12, in validate_agent
+    # ✅ Handle both file paths and preloaded conversation lists
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not list
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/validate_eu.py", line 46, in validate_eu_framework
+    agent_results = to_json_safe(validate_agent(conversation))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/eu_agent_node.py", line 12, in validate_agent
+    # ✅ Handle both file paths and preloaded conversation lists
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not list
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/validate_eu.py", line 46, in validate_eu_framework
+    agent_results = to_json_safe(validate_agent(conversation))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/eu_agent_node.py", line 12, in validate_agent
+    # ✅ Handle both file path and list input
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not list
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/validate_eu.py", line 46, in validate_eu_framework
+    agent_results["conversation"] = to_json_safe(conversation)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/eu_agent_node.py", line 12, in validate_agent
+    # ✅ Handle both file path and list input
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not list
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/validate_eu.py", line 46, in validate_eu_framework
+    agent_results["conversation"] = to_json_safe(conversation)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/eu_agent_node.py", line 12, in validate_agent
+    # ✅ Handle both file path and list input
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not list
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/validate_eu.py", line 46, in validate_eu_framework
+    agent_results["conversation"] = to_json_safe(conversation)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/ethicalinew/backend/validator/eu_ai_act/eu_agent_node.py", line 12, in validate_agent
+    def validate_agent(agent_log_path):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not list
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/frontend/pages/upload_validate.py", line 70, in <module>
+    result = validate_function(dataset_path=dataset_path, algorithm_path=algorithm_path, agent_log_path=None)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: validate_eu_framework() got an unexpected keyword argument 'agent_log_path'
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/frontend/pages/upload_validate.py", line 70, in <module>
+    result = validate_function(dataset_path=dataset_path, algorithm_path=algorithm_path, agent_log_path=None)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: validate_eu_framework() got an unexpected keyword argument 'agent_log_path'
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/frontend/pages/upload_validate.py", line 70, in <module>
+    result = validate_function(dataset_path=dataset_path, algorithm_path=algorithm_path, agent_log_path=None)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: validate_eu_framework() got an unexpected keyword argument 'agent_log_path'
+
+
+--------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/ethicalinew/frontend/pages/upload_validate.py", line 70, in <module>
+    result = validate_function(dataset_path=dataset_path, algorithm_path=algorithm_path, agent_log_path=None)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: validate_eu_framework() got an unexpected keyword argument 'agent_log_path'
+
