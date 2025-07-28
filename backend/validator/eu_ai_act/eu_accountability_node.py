@@ -1,12 +1,12 @@
-import pandas as pd
 import json
+import csv
 
 class AccountabilityNode:
     def __init__(self, required_metadata=None):
         self.required_metadata = required_metadata or ["timestamp", "version", "decision_log"]
 
-    def evaluate_dataset(self, dataset):
-        missing = [meta for meta in self.required_metadata if meta not in dataset.columns]
+    def evaluate_dataset(self, dataset_headers):
+        missing = [meta for meta in self.required_metadata if meta not in dataset_headers]
         return {
             "compliant": not missing,
             "missing_metadata": missing,
@@ -28,11 +28,14 @@ def validate_accountability(dataset_path=None, algorithm_path=None):
 
     result = {}
 
-    # Dataset
+    # === Dataset ===
     if dataset_path:
         try:
-            dataset = pd.read_csv(dataset_path)
-            result["dataset"] = node.evaluate_dataset(dataset)
+            with open(dataset_path, newline="") as f:
+                reader = csv.reader(f)
+                rows = list(reader)
+                headers = rows[0] if rows else []
+            result["dataset"] = node.evaluate_dataset(headers)
         except Exception as e:
             result["dataset"] = {
                 "status": "error",
@@ -44,19 +47,17 @@ def validate_accountability(dataset_path=None, algorithm_path=None):
             "message": "No dataset provided"
         }
 
-    # Algorithm
+    # === Algorithm ===
     if algorithm_path:
         try:
             with open(algorithm_path, "r") as f:
                 algo_code = f.read()
-
-            # Placeholder – swap with real parser
+            # Placeholder mock – replace with real parser
             mock_algo = {
                 "timestamp": "2025-07-21T12:34:56",
                 "version": "1.0",
                 "decision_log": ["decision1", "decision2"]
             }
-
             result["algorithm"] = node.evaluate_algorithm(mock_algo)
         except Exception as e:
             result["algorithm"] = {
@@ -70,3 +71,4 @@ def validate_accountability(dataset_path=None, algorithm_path=None):
         }
 
     return result
+

@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-east-1" # Change to your preferred AWS region
+  region = "us-east-1"
 }
 
 # S3 Bucket for datasets and reports
@@ -52,14 +52,14 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-# Lambda function for dataset validation (placeholder)
+# ✅ Lambda function
 resource "aws_lambda_function" "dataset_validation" {
-  filename         = "${path.module}/../lambda/dataset_validation/lambda.zip"
+  filename         = "./../lambda/dataset_validation/lambda.zip"
   function_name    = "datasetValidation"
-  role             = aws_iam_role.lambda_exec.arn
   handler          = "lambda_function.lambda_handler"
   runtime          = "python3.11"
-  source_code_hash = filebase64sha256("${path.module}/../lambda/dataset_validation/lambda.zip")
+  role             = aws_iam_role.lambda_exec.arn
+  timeout          = 10
 }
 
 # API Gateway

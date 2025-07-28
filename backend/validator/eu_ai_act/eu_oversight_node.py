@@ -1,5 +1,3 @@
-# backend/validator/eu_oversight_node.py
-
 import json
 import os
 
@@ -58,12 +56,20 @@ def validate_oversight(dataset_path=None, algorithm_path=None):
                     config = json.load(f)
 
             elif ext in [".yaml", ".yml"]:
-                import yaml
+                try:
+                    import yaml
+                except ImportError:
+                    return {
+                        "algorithm_analysis": {
+                            "compliant": False,
+                            "reason": "YAML file provided but PyYAML not installed"
+                        },
+                        "compliant": False
+                    }
                 with open(algorithm_path, "r") as f:
                     config = yaml.safe_load(f)
 
             elif ext == ".py":
-                # Treat Python scripts as code, not JSON
                 with open(algorithm_path, "r") as f:
                     code = f.read()
                 config = {
@@ -72,9 +78,18 @@ def validate_oversight(dataset_path=None, algorithm_path=None):
                     "override_capability": True,
                     "lines_of_code": len(code.splitlines())
                 }
-            
+
             elif ext == ".ipynb":
-                import nbformat
+                try:
+                    import nbformat
+                except ImportError:
+                    return {
+                        "algorithm_analysis": {
+                            "compliant": False,
+                            "reason": "Notebook file provided but nbformat not installed"
+                        },
+                        "compliant": False
+                    }
                 with open(algorithm_path, "r") as f:
                     nb = nbformat.read(f, as_version=4)
 

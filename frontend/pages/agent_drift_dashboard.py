@@ -5,7 +5,6 @@ import json
 import datetime
 from difflib import SequenceMatcher
 import importlib.util
-import pandas as pd
 import traceback
 
 # === Paths ===
@@ -63,10 +62,8 @@ if agent_file:
                 conversation = json.load(f)
 
             # ✅ Dynamic import of EU Agent Validator
-            # ✅ Use separate agent validation framework
             from backend.validator.eu_ai_act import validate_agent_framework
             result = validate_agent_framework.validate_eu_agent(conversation)
-
 
             # ✅ Save to drift logs
             timestamp = datetime.datetime.utcnow().strftime("%Y%m%d_%H%M%S")
@@ -129,16 +126,19 @@ else:
             timestamps.append(ts)
 
     if scores:
-        df = pd.DataFrame({"Timestamp": timestamps, "Drift Score (%)": scores})
-        st.line_chart(df.set_index("Timestamp"))
+        st.line_chart({"Drift Score (%)": scores}, x=timestamps)
 
     # ✅ Compliance trend
-    compliance_scores = [calc_compliance_score(a["data"]) for a in audits if calc_compliance_score(a["data"]) is not None]
-    compliance_timestamps = [a["file"].replace("agent_audit_", "").replace(".json", "") for a in audits if calc_compliance_score(a["data"]) is not None]
+    compliance_scores = []
+    compliance_timestamps = []
+    for a in audits:
+        cs = calc_compliance_score(a["data"])
+        if cs is not None:
+            compliance_scores.append(cs)
+            compliance_timestamps.append(a["file"].replace("agent_audit_", "").replace(".json", ""))
 
     if compliance_scores:
-        comp_df = pd.DataFrame({"Timestamp": compliance_timestamps, "Compliance (%)": compliance_scores})
-        st.line_chart(comp_df.set_index("Timestamp"))
+        st.line_chart({"Compliance (%)": compliance_scores}, x=compliance_timestamps)
 
 # === Historical Table ===
 if len(audits) > 0:
@@ -156,11 +156,10 @@ if len(audits) > 0:
         prev_conv = audit["data"].get("conversation", [])
 
         history_rows.append({
-            "Timestamp": str(timestamp),
-            "Overall Compliance": str(overall_status),
-            "Compliance %": float(compliance) if compliance is not None else None,
-            "Drift vs Previous": float(drift) if drift is not None else None
+            "Timestamp": timestamp,
+            "Overall Compliance": overall_status,
+            "Compliance %": compliance if compliance is not None else "N/A",
+            "Drift vs Previous": drift if drift is not None else "N/A"
         })
 
-    history_df = pd.DataFrame(history_rows)
-    st.dataframe(history_df)
+    st.table(history_rows)

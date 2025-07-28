@@ -1,18 +1,15 @@
-# backend/validator/agent_validator.py
-
-import re
+import json
 
 def check_bias(conversation):
     biased_responses = []
     for pair in conversation:
         response = pair.get("agent", "").lower()
-        if "women" in response or "men" in response:
-            if "only" in response or "should" in response:
-                biased_responses.append(pair)
+        if ("women" in response or "men" in response) and ("only" in response or "should" in response):
+            biased_responses.append(pair)
     return {
         "result": "No" if biased_responses else "Yes",
         "details": f"{len(biased_responses)} potentially biased response(s) found.",
-        "examples": biased_responses[:2]  # Limit preview
+        "examples": biased_responses[:2]
     }
 
 def check_explainability(conversation):
@@ -57,3 +54,13 @@ def run_agent_validation(conversation):
         "consistency": consistency,
         "overall_compliance": overall
     }
+
+# ✅ Wrapper for Lambda / File Input
+def validate_agent_file(file_path_or_list):
+    """Allows direct list OR JSON file path for conversation logs."""
+    if isinstance(file_path_or_list, list):
+        conversation = file_path_or_list
+    else:
+        with open(file_path_or_list, "r") as f:
+            conversation = json.load(f)
+    return run_agent_validation(conversation)

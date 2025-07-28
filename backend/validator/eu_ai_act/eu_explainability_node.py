@@ -1,6 +1,5 @@
-# backend/validator/eu_explainability_node.py
 import os
-import pandas as pd
+import csv
 
 class ExplainabilityNode:
     def __init__(self, max_features=30):
@@ -26,7 +25,6 @@ class ExplainabilityNode:
             with open(algorithm_path, "r") as f:
                 code = f.read().lower()
 
-            # Check for explainable model type
             for keyword in self.explainable_model_keywords:
                 if keyword in code:
                     result["model_type_detected"] = keyword
@@ -45,8 +43,20 @@ class ExplainabilityNode:
             "details": result
         }
 
-    def evaluate_dataset(self, dataset):
-        feature_count = len(dataset.columns)
+    def evaluate_dataset(self, dataset_path):
+        try:
+            with open(dataset_path, "r") as f:
+                reader = csv.reader(f)
+                headers = next(reader, [])
+            feature_count = len(headers)
+        except Exception as e:
+            return {
+                "feature_count": 0,
+                "max_allowed": self.max_features,
+                "compliant": False,
+                "reason": f"Error reading dataset: {str(e)}"
+            }
+
         compliant = feature_count <= self.max_features
         return {
             "feature_count": feature_count,
@@ -55,26 +65,16 @@ class ExplainabilityNode:
             "reason": "Too many features for human interpretability" if not compliant else "Acceptable number of features"
         }
 
-# ✅ Wrapper for validator orchestration
 def validate_explainability(dataset_path=None, algorithm_path=None):
     node = ExplainabilityNode()
     results = {}
-
     overall_compliance = True
 
-    # Dataset check
+    # Dataset validation
     if dataset_path:
-        try:
-            dataset = pd.read_csv(dataset_path)
-            dataset_result = node.evaluate_dataset(dataset)
-            results["dataset_analysis"] = dataset_result
-            overall_compliance = overall_compliance and dataset_result["compliant"]
-        except Exception as e:
-            results["dataset_analysis"] = {
-                "compliant": False,
-                "reason": f"Dataset error: {str(e)}"
-            }
-            overall_compliance = False
+        dataset_result = node.evaluate_dataset(dataset_path)
+        results["dataset_analysis"] = dataset_result
+        overall_compliance = overall_compliance and dataset_result["compliant"]
     else:
         results["dataset_analysis"] = {
             "compliant": False,
@@ -82,7 +82,7 @@ def validate_explainability(dataset_path=None, algorithm_path=None):
         }
         overall_compliance = False
 
-    # Algorithm check
+    # Algorithm validation
     if algorithm_path:
         algo_result = node.evaluate_algorithm(algorithm_path)
         results["algorithm_analysis"] = algo_result["details"]

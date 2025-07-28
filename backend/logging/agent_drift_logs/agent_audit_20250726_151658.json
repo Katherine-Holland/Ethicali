@@ -1,6 +1,0 @@
-{
-  "agent_audit": {
-    "status": "error",
-    "message": "expected str, bytes or os.PathLike object, not list"
-  }
-}

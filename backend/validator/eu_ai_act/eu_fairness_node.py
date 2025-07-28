@@ -1,47 +1,57 @@
-import pandas as pd
+import csv
+from collections import Counter
 
 class FairnessNode:
     def __init__(self, thresholds):
         self.thresholds = thresholds
 
-    def evaluate_dataset(self, dataset):
+    def evaluate_dataset(self, dataset_path):
         results = {}
         overall_compliance = True
 
-        for feature, threshold in self.thresholds.items():
-            if feature in dataset:
-                feature_data = dataset[feature].dropna()
-                if feature_data.empty:
-                    results[feature] = {
-                        "compliant": False,
-                        "representation": {},
-                        "below_threshold": {},
-                        "threshold": threshold,
-                        "reason": "Skipped due to missing values",
-                    }
-                    overall_compliance = False
-                    continue
+        try:
+            with open(dataset_path, "r") as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Dataset read error: {str(e)}"
+            }
 
-                counts = feature_data.value_counts(normalize=True)
-                below_threshold = counts[counts < threshold]
-                compliant = below_threshold.empty
-                results[feature] = {
-                    "compliant": compliant,
-                    "representation": counts.to_dict(),
-                    "below_threshold": below_threshold.to_dict(),
-                    "threshold": threshold,
-                    "reason": "Below threshold" if not compliant else "Meets threshold",
-                }
-                overall_compliance = overall_compliance and compliant
-            else:
+        if not rows:
+            return {
+                "status": "error",
+                "message": "Dataset is empty"
+            }
+
+        for feature, threshold in self.thresholds.items():
+            values = [row.get(feature) for row in rows if row.get(feature)]
+            if not values:
                 results[feature] = {
                     "compliant": False,
                     "representation": {},
                     "below_threshold": {},
                     "threshold": threshold,
-                    "reason": "Feature not found in dataset",
+                    "reason": "Feature missing or all values empty",
                 }
                 overall_compliance = False
+                continue
+
+            total = len(values)
+            counts = Counter(values)
+            normalized = {k: v / total for k, v in counts.items()}
+            below_threshold = {k: v for k, v in normalized.items() if v < threshold}
+            compliant = not below_threshold
+
+            results[feature] = {
+                "compliant": compliant,
+                "representation": normalized,
+                "below_threshold": below_threshold,
+                "threshold": threshold,
+                "reason": "Below threshold" if not compliant else "Meets threshold",
+            }
+            overall_compliance = overall_compliance and compliant
 
         return {
             "compliant": overall_compliance,
@@ -57,19 +67,11 @@ def validate_fairness(dataset_path=None, algorithm_path=None):
     }
 
     node = FairnessNode(thresholds)
-    results = {}
 
     if dataset_path:
-        try:
-            dataset = pd.read_csv(dataset_path)
-            results = node.evaluate_dataset(dataset)
-        except Exception as e:
-            results = {
-                "status": "error",
-                "message": f"Dataset error: {str(e)}"
-            }
+        return node.evaluate_dataset(dataset_path)
     else:
-        results = {
+        return {
             "status": "skipped",
             "message": "No dataset provided"
         }
