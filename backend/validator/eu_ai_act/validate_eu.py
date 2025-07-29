@@ -1,5 +1,9 @@
 import json
-import os
+import sys, os
+# Add backend root to path
+BACKEND_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
+if BACKEND_PATH not in sys.path:
+    sys.path.append(BACKEND_PATH)
 import csv
 import traceback
 from validator.eu_ai_act.eu_bias_node import validate_bias
@@ -10,6 +14,9 @@ from validator.eu_ai_act.eu_risk_node import validate_risk
 from validator.eu_ai_act.eu_explainability_node import validate_explainability
 from validator.eu_ai_act.eu_robustness_node import validate_robustness
 from validator.eu_ai_act.eu_oversight_node import validate_oversight
+
+# ✅ Import audit logger
+from backend.logging.audit_logger import save_audit_log
 
 DEBUG_LOG = "/tmp/debug.log"
 
@@ -115,5 +122,14 @@ def validate_eu_framework(dataset_path=None, algorithm_path=None):
     except Exception as e:
         log_error(e)
         results['oversight'] = {"status": "error", "message": str(e)}
+    
+    # ✅ Save audit log to DynamoDB + local JSON
+    save_audit_log(
+        results=results,
+        framework="EU AI Act",
+        dataset_path=dataset_path,
+        algorithm_path=algorithm_path,
+        client_id="default_client"
+    )
 
     return to_json_safe(results)

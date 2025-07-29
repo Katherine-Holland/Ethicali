@@ -62,6 +62,44 @@ class BiasDetectionNode:
             "features": results,
         }
 
+    def evaluate_algorithm(self, algorithm_obj):
+        """Evaluate algorithm weights for bias compliance."""
+        results = {}
+        overall_compliance = True
+
+        if "weights" not in algorithm_obj:
+            return {
+                "compliant": False,
+                "reason": "No weights found in algorithm for bias evaluation"
+            }
+
+        for feature, threshold in self.thresholds.items():
+            if feature in algorithm_obj["weights"]:
+                weights = algorithm_obj["weights"][feature]
+                below_threshold = {k: v for k, v in weights.items() if v < threshold}
+                compliant = not below_threshold
+                results[feature] = {
+                    "compliant": compliant,
+                    "weights": weights,
+                    "below_threshold": below_threshold,
+                    "threshold": threshold,
+                    "reason": "Below threshold" if not compliant else "Meets threshold"
+                }
+                overall_compliance = overall_compliance and compliant
+            else:
+                results[feature] = {
+                    "compliant": False,
+                    "weights": {},
+                    "threshold": threshold,
+                    "reason": "Feature not present in algorithm weights"
+                }
+                overall_compliance = False
+
+        return {
+            "compliant": overall_compliance,
+            "features": results
+        }
+
 # ✅ Wrapper
 def validate_bias(dataset_path=None, algorithm_path=None):
     thresholds = {"gender": 0.2, "ethnicity": 0.1, "age_group": 0.15}
@@ -81,15 +119,13 @@ def validate_bias(dataset_path=None, algorithm_path=None):
 
     if algorithm_path:
         try:
+            # Dynamically load the algorithm dict from the file
+            algo_namespace = {}
             with open(algorithm_path, "r") as f:
-                algo = {
-                    "weights": {
-                        "gender": {"male": 0.5, "female": 0.5},
-                        "ethnicity": {"group1": 0.9, "group2": 0.05, "group3": 0.05}
-                    },
-                    "description": "Sample ML model"
-                }
-                algorithm_results = detector.evaluate_algorithm(algo)
+                exec(f.read(), algo_namespace)
+            algorithm_obj = algo_namespace.get("algorithm", {})
+
+            algorithm_results = detector.evaluate_algorithm(algorithm_obj)
         except Exception as e:
             algorithm_results = {"status": "error", "message": str(e)}
 

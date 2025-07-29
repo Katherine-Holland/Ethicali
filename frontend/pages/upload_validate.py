@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import importlib.util
 import traceback
 import json  # ✅ for safe serialization
+import pandas as pd
 
 # --- Set up paths ---
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -82,6 +83,21 @@ if (uploaded_file or algorithm_file) and framework_choice:
                     st.json(safe_res)
                 except Exception:
                     st.write(str(res))
+            
+            # ✅ Convert compliance results into a DataFrame for charting
+            if isinstance(result, dict):
+                rows = []
+                for check, res in result.items():
+                    if isinstance(res, dict) and "compliance" in res:
+                        rows.append({
+                            "check": check.capitalize(),
+                            "compliance": res.get("compliance", "Unknown")
+                        })
+                if rows:
+                    df = pd.DataFrame(rows)
+                    st.markdown("### 📊 Compliance Overview")
+                    st.bar_chart(df, x="check", y="compliance")  # Column names used, no list issue
+
 
         except Exception as e:
             st.error(f"⚠️ Validation failed for {framework_choice}: {str(e)}")
