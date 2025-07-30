@@ -11,11 +11,9 @@ class RobustnessNode:
         results = {}
         overall_compliance = True
 
-        # ✅ Identify numeric columns by attempting float conversion
         numeric_indices = []
         for i, col in enumerate(headers):
             try:
-                # Check if most values are numeric
                 sample_values = [row[i] for row in dataset_rows if row[i] != ""]
                 if sample_values and all(self._is_number(v) for v in sample_values[:10]):
                     numeric_indices.append(i)
@@ -44,9 +42,7 @@ class RobustnessNode:
                 overall_compliance = False
                 continue
 
-            # ✅ Add noise manually
             perturbed = [x + random.gauss(0, self.noise_level) for x in original]
-
             original_mean = sum(original) / len(original)
             perturbed_mean = sum(perturbed) / len(perturbed)
             mean_diff = abs(original_mean - perturbed_mean) / (original_mean + 1e-9)
@@ -74,10 +70,12 @@ class RobustnessNode:
         except ValueError:
             return False
 
-# ✅ Wrapper for validator orchestration
+# ✅ Wrapper
 def validate_robustness(dataset_path=None, algorithm_path=None):
     node = RobustnessNode()
-    results = {}
+
+    dataset_results = {"status": "skipped", "message": "No dataset provided"}
+    algorithm_results = {"status": "skipped", "message": "No algorithm provided"}
 
     if dataset_path and os.path.exists(dataset_path):
         try:
@@ -85,22 +83,18 @@ def validate_robustness(dataset_path=None, algorithm_path=None):
                 reader = csv.reader(f)
                 headers = next(reader)
                 rows = list(reader)
-
-            dataset_result = node.evaluate_dataset(rows, headers)
-            results["dataset_analysis"] = dataset_result
-            results["compliant"] = dataset_result["compliant"]
-
+            dataset_results = node.evaluate_dataset(rows, headers)
         except Exception as e:
-            results["dataset_analysis"] = {
-                "compliant": False,
-                "reason": f"Dataset error: {str(e)}"
-            }
-            results["compliant"] = False
-    else:
-        results["dataset_analysis"] = {
-            "compliant": False,
-            "reason": "No dataset provided"
-        }
-        results["compliant"] = False
+            dataset_results = {"status": "error", "message": f"Dataset error: {str(e)}"}
 
-    return results
+    # Placeholder for algorithm robustness if needed later
+    if algorithm_path:
+        algorithm_results = {
+            "status": "skipped",
+            "message": "Algorithm robustness test not implemented"
+        }
+
+    return {
+        "dataset": dataset_results,
+        "algorithm": algorithm_results
+    }

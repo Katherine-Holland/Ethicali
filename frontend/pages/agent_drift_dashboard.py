@@ -4,7 +4,6 @@ import os
 import json
 import datetime
 from difflib import SequenceMatcher
-import importlib.util
 import traceback
 
 # === Paths ===
@@ -12,7 +11,11 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if BASE_DIR not in sys.path:
     sys.path.append(BASE_DIR)
 
-VALIDATOR_PATH = os.path.join(BASE_DIR, "backend", "validator")
+BACKEND_PATH = os.path.join(BASE_DIR, "backend")
+if BACKEND_PATH not in sys.path:
+    sys.path.append(BACKEND_PATH)
+
+VALIDATOR_PATH = os.path.join(BACKEND_PATH, "validator")
 os.makedirs(VALIDATOR_PATH, exist_ok=True)
 
 DRIFT_LOG_DIR = os.path.join(BASE_DIR, "backend", "logging", "agent_drift_logs")
@@ -74,8 +77,9 @@ if agent_file:
             st.success("✅ AI Agent Audit Complete")
 
             # === Compliance Display ===
-            if "results" in result:
-                audit_results = result["results"]
+            agent_data = result.get("agent_analysis", result)
+            if "results" in agent_data:
+                audit_results = agent_data["results"]
                 st.subheader("AI Agent Compliance Report")
 
                 for category, data in audit_results.items():
@@ -105,7 +109,7 @@ if agent_file:
             log.write(traceback.format_exc())
             log.write("\n")
 
-# === Drift Monitoring ===
+# === Drift & Compliance Monitoring ===
 st.subheader("📈 Drift & Compliance Over Time")
 
 audits = load_all_audits()
@@ -113,6 +117,7 @@ audits = load_all_audits()
 if len(audits) < 2:
     st.info("Run at least 2 audits to see drift trends.")
 else:
+    # ✅ Drift score calculation
     scores = []
     timestamps = []
     for i in range(1, len(audits)):
@@ -126,9 +131,13 @@ else:
             timestamps.append(ts)
 
     if scores:
-        st.line_chart({"Drift Score (%)": scores}, x=timestamps)
+        drift_chart_data = [
+            {"Timestamp": ts, "Drift Score (%)": score}
+            for ts, score in zip(timestamps, scores)
+        ]
+        st.line_chart(drift_chart_data)
 
-    # ✅ Compliance trend
+    # ✅ Compliance trend calculation
     compliance_scores = []
     compliance_timestamps = []
     for a in audits:
@@ -138,7 +147,11 @@ else:
             compliance_timestamps.append(a["file"].replace("agent_audit_", "").replace(".json", ""))
 
     if compliance_scores:
-        st.line_chart({"Compliance (%)": compliance_scores}, x=compliance_timestamps)
+        compliance_chart_data = [
+            {"Timestamp": ts, "Compliance (%)": cs}
+            for ts, cs in zip(compliance_timestamps, compliance_scores)
+        ]
+        st.line_chart(compliance_chart_data)
 
 # === Historical Table ===
 if len(audits) > 0:

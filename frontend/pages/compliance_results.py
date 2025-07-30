@@ -25,7 +25,12 @@ from upload_to_chain import upload_compliance_result
 
 # Sepolia Alchemy URL and contract address
 PROVIDER_URL = f"https://eth-sepolia.g.alchemy.com/v2/{os.getenv('ALCHEMY_API_KEY')}"
-CONTRACT_ADDRESS = os.getenv("CONTRACT_ADDRESS")  # make sure this is set in your .env
+CONTRACT_ADDRESS = os.getenv("CONTRACT_ADDRESS")
+
+# ✅ Check contract address early
+if not CONTRACT_ADDRESS:
+    st.error("❌ CONTRACT_ADDRESS not set in .env")
+    st.stop()
 
 # Connect to blockchain
 try:
@@ -49,34 +54,42 @@ if tx_hash:
         tx = blockchain_manager.w3.eth.get_transaction(tx_hash)
         decoded = blockchain_manager.decode_transaction_input(tx)
 
-        st.subheader("🧾 Decoded Compliance Record")
-        st.success("✅ Record Found and Decoded")
-
-        summary = decoded["args"]["_summary"]
-        secure_hash = decoded["args"]["_hash"]
-        metadata_raw = decoded["args"]["_metadata"]
-
-        # Extract readable timestamp if included in metadata
-        match = re.search(r"(\d{10})$", metadata_raw)
-        if match:
-            timestamp = int(match.group(1))
-            readable_time = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
-            metadata = f"{metadata_raw[:-10].strip()} (at {readable_time})"
+        # ✅ Ensure expected args exist
+        args = decoded.get("args", {})
+        if not args:
+            st.error("❌ Invalid or non-compliance transaction format.")
         else:
-            metadata = metadata_raw
+            st.subheader("🧾 Decoded Compliance Record")
+            st.success("✅ Record Found and Decoded")
 
-        st.markdown(f"**Summary:** {summary}")
-        st.markdown(f"**Hash:** {secure_hash}")
-        st.markdown(f"**Metadata:** {metadata}")
+            summary = args.get("_summary", "")
+            secure_hash = args.get("_hash", "")
+            metadata_raw = args.get("_metadata", "")
 
-        st.subheader("📦 Transaction Info")
-        st.json({
-            "From": tx["from"],
-            "To": tx["to"],
-            "Gas Used": tx["gas"],
-            "Nonce": tx["nonce"],
-            "Block Number": tx["blockNumber"]
-        })
+            # ✅ Extract readable timestamp if included in metadata
+            match = re.search(r"(\d{10})$", metadata_raw)
+            if match:
+                timestamp = int(match.group(1))
+                readable_time = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+                metadata = f"{metadata_raw[:-10].strip()} (at {readable_time})"
+            else:
+                metadata = metadata_raw
+
+            st.markdown(f"**Summary:** {summary}")
+            st.markdown(f"**Hash:** {secure_hash}")
+            st.markdown(f"**Metadata:** {metadata}")
+
+            # ✅ Fetch gas used from receipt for accuracy
+            receipt = blockchain_manager.w3.eth.get_transaction_receipt(tx_hash)
+
+            st.subheader("📦 Transaction Info")
+            st.json({
+                "From": tx["from"],
+                "To": tx["to"],
+                "Gas Used": receipt["gasUsed"],
+                "Nonce": tx["nonce"],
+                "Block Number": tx["blockNumber"]
+            })
 
     except Exception as e:
         st.error(f"❌ Error: {e}")

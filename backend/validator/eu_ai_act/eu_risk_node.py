@@ -9,8 +9,7 @@ class RiskNode:
     def evaluate_dataset(self, dataset_rows, headers):
         results = {}
         overall_compliance = True
-
-        # ✅ Check for presence of high-risk features
+        # ✅ High-risk feature presence
         for feature in self.high_risk_features:
             feature_found = feature in headers
             results[feature] = {
@@ -21,7 +20,7 @@ class RiskNode:
             if not feature_found:
                 overall_compliance = False
 
-        # ✅ Check for excessive missing values (row-by-row)
+        # ✅ Missing data analysis
         missing_report = {}
         total_rows = len(dataset_rows)
         if total_rows > 0:
@@ -42,9 +41,44 @@ class RiskNode:
             "missing_data_report": missing_report
         }
 
-# ✅ Wrapper for validator orchestration
+    def evaluate_algorithm(self, algorithm_obj):
+        """Validate if algorithm handles high-risk features and mitigation."""
+        results = {}
+        overall_compliance = True
+
+        for feature in self.high_risk_features:
+            handles_feature = feature in algorithm_obj.get("handles", [])
+            mitigation = algorithm_obj.get("mitigation", {}).get(feature, None)
+            compliant = handles_feature and mitigation is not None
+            results[feature] = {
+                "handled": handles_feature,
+                "mitigation": mitigation,
+                "compliant": compliant,
+                "reason": (
+                    "Algorithm handles and mitigates this risk"
+                    if compliant else
+                    "Missing handling or mitigation for this risk"
+                )
+            }
+            if not compliant:
+                overall_compliance = False
+
+        human_review = algorithm_obj.get("human_review_enabled", False)
+        if not human_review:
+            overall_compliance = False
+
+        return {
+            "compliant": overall_compliance,
+            "high_risk_handling": results,
+            "human_review_enabled": human_review
+        }
+
+# ✅ Wrapper at module level
 def validate_risk(dataset_path=None, algorithm_path=None):
     node = RiskNode()
+
+    dataset_results = {"status": "skipped", "message": "No dataset provided"}
+    algorithm_results = {"status": "skipped", "message": "No algorithm provided"}
 
     if dataset_path and os.path.exists(dataset_path):
         try:
@@ -52,18 +86,18 @@ def validate_risk(dataset_path=None, algorithm_path=None):
                 reader = csv.reader(f)
                 headers = next(reader)
                 rows = list(reader)
-
-            return node.evaluate_dataset(rows, headers)
-
+            dataset_results = node.evaluate_dataset(rows, headers)
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Dataset error: {str(e)}"
-            }
+            dataset_results = {"status": "error", "message": f"Dataset error: {str(e)}"}
 
-    else:
-        return {
-            "status": "skipped",
-            "message": "No dataset provided"
-        }
+    if algorithm_path and os.path.exists(algorithm_path):
+        try:
+            algo_namespace = {}
+            with open(algorithm_path, "r") as f:
+                exec(f.read(), algo_namespace)
+            algorithm_obj = algo_namespace.get("algorithm", {})
+            algorithm_results = node.evaluate_algorithm(algorithm_obj)
+        except Exception as e:
+            algorithm_results = {"status": "error", "message": f"Algorithm error: {str(e)}"}
 
+    return {"dataset": dataset_results, "algorithm": algorithm_results}

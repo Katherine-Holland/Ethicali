@@ -1,74 +1,53 @@
-import json
 import csv
+import os
 
 class AccountabilityNode:
     def __init__(self, required_metadata=None):
         self.required_metadata = required_metadata or ["timestamp", "version", "decision_log"]
 
-    def evaluate_dataset(self, dataset_headers):
-        missing = [meta for meta in self.required_metadata if meta not in dataset_headers]
+    def evaluate_dataset(self, headers):
+        missing = [meta for meta in self.required_metadata if meta not in headers]
         return {
             "compliant": not missing,
             "missing_metadata": missing,
             "reason": f"Missing mandatory metadata: {missing}" if missing else "All metadata present",
         }
 
-    def evaluate_algorithm(self, algorithm):
-        missing_keys = [key for key in self.required_metadata if key not in algorithm]
+    def evaluate_algorithm(self, algorithm_obj):
+        missing_keys = [key for key in self.required_metadata if key not in algorithm_obj]
         return {
             "compliant": not missing_keys,
             "missing_keys": missing_keys,
             "reason": f"Missing mandatory keys: {missing_keys}" if missing_keys else "All keys present",
         }
 
-# ✅ Wrapper function for validator node
+# ✅ Wrapper for validator orchestration
 def validate_accountability(dataset_path=None, algorithm_path=None):
-    required_metadata = ["timestamp", "version", "decision_log"]
-    node = AccountabilityNode(required_metadata)
+    node = AccountabilityNode()
 
-    result = {}
+    dataset_results = {"status": "skipped", "message": "No dataset provided"}
+    algorithm_results = {"status": "skipped", "message": "No algorithm provided"}
 
-    # === Dataset ===
-    if dataset_path:
+    # Dataset evaluation
+    if dataset_path and os.path.exists(dataset_path):
         try:
-            with open(dataset_path, newline="") as f:
+            with open(dataset_path, newline="", encoding="utf-8") as f:
                 reader = csv.reader(f)
                 rows = list(reader)
                 headers = rows[0] if rows else []
-            result["dataset"] = node.evaluate_dataset(headers)
+            dataset_results = node.evaluate_dataset(headers)
         except Exception as e:
-            result["dataset"] = {
-                "status": "error",
-                "message": f"Dataset error: {str(e)}"
-            }
-    else:
-        result["dataset"] = {
-            "status": "skipped",
-            "message": "No dataset provided"
-        }
+            dataset_results = {"status": "error", "message": f"Dataset error: {str(e)}"}
 
-    # === Algorithm ===
-    if algorithm_path:
+    # Algorithm evaluation
+    if algorithm_path and os.path.exists(algorithm_path):
         try:
+            algo_namespace = {}
             with open(algorithm_path, "r") as f:
-                algo_code = f.read()
-            # Placeholder mock – replace with real parser
-            mock_algo = {
-                "timestamp": "2025-07-21T12:34:56",
-                "version": "1.0",
-                "decision_log": ["decision1", "decision2"]
-            }
-            result["algorithm"] = node.evaluate_algorithm(mock_algo)
+                exec(f.read(), algo_namespace)
+            algorithm_obj = algo_namespace.get("algorithm", {})
+            algorithm_results = node.evaluate_algorithm(algorithm_obj)
         except Exception as e:
-            result["algorithm"] = {
-                "status": "error",
-                "message": f"Algorithm error: {str(e)}"
-            }
-    else:
-        result["algorithm"] = {
-            "status": "skipped",
-            "message": "No algorithm provided"
-        }
+            algorithm_results = {"status": "error", "message": f"Algorithm error: {str(e)}"}
 
-    return result
-
+    return {"dataset": dataset_results, "algorithm": algorithm_results}

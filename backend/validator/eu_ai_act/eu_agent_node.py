@@ -17,7 +17,7 @@ def validate_agent(conversation_input):
             with open(conversation_input, "r") as f:
                 conversation = json.load(f)
 
-        base_results = run_agent_validation(conversation)
+        base_results = run_agent_validation(conversation) or {}
 
         compliance_report = {}
         overall_pass = True
@@ -38,12 +38,14 @@ def validate_agent(conversation_input):
                 overall_pass = False
 
         return {
+            "status": "complete",
+            "overall_compliance": "Yes" if overall_pass else "No",
             "results": compliance_report,
-            "overall_compliance": "Yes" if overall_pass else base_results.get("overall_compliance", "No"),
-            "conversation": conversation
+            "conversation_length": len(conversation)
         }
+
     except Exception as e:
         return {
             "status": "error",
-            "message": str(e)
+            "message": f"Agent validation failed: {str(e)}"
         }

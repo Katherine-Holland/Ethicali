@@ -18,8 +18,11 @@ class ExplainabilityNode:
         }
 
         if not os.path.exists(algorithm_path):
-            result["reason"] = "Algorithm file not found"
-            return {"compliant": False, "details": result}
+            return {
+                "compliant": False,
+                "details": result,
+                "reason": "Algorithm file not found"
+            }
 
         try:
             with open(algorithm_path, "r") as f:
@@ -35,8 +38,11 @@ class ExplainabilityNode:
                 result["reason"] = "Model type not clearly explainable"
 
         except Exception as e:
-            result["reason"] = f"Error reading algorithm: {str(e)}"
-            return {"compliant": False, "details": result}
+            return {
+                "compliant": False,
+                "details": result,
+                "reason": f"Error reading algorithm: {str(e)}"
+            }
 
         return {
             "compliant": result["compliant_model_type"],
@@ -51,48 +57,34 @@ class ExplainabilityNode:
             feature_count = len(headers)
         except Exception as e:
             return {
+                "compliant": False,
                 "feature_count": 0,
                 "max_allowed": self.max_features,
-                "compliant": False,
                 "reason": f"Error reading dataset: {str(e)}"
             }
 
         compliant = feature_count <= self.max_features
         return {
+            "compliant": compliant,
             "feature_count": feature_count,
             "max_allowed": self.max_features,
-            "compliant": compliant,
             "reason": "Too many features for human interpretability" if not compliant else "Acceptable number of features"
         }
 
+# ✅ Wrapper
 def validate_explainability(dataset_path=None, algorithm_path=None):
     node = ExplainabilityNode()
-    results = {}
-    overall_compliance = True
 
-    # Dataset validation
+    dataset_results = {"status": "skipped", "message": "No dataset provided"}
+    algorithm_results = {"status": "skipped", "message": "No algorithm provided"}
+
     if dataset_path:
-        dataset_result = node.evaluate_dataset(dataset_path)
-        results["dataset_analysis"] = dataset_result
-        overall_compliance = overall_compliance and dataset_result["compliant"]
-    else:
-        results["dataset_analysis"] = {
-            "compliant": False,
-            "reason": "No dataset provided"
-        }
-        overall_compliance = False
+        dataset_results = node.evaluate_dataset(dataset_path)
 
-    # Algorithm validation
     if algorithm_path:
-        algo_result = node.evaluate_algorithm(algorithm_path)
-        results["algorithm_analysis"] = algo_result["details"]
-        overall_compliance = overall_compliance and algo_result["compliant"]
-    else:
-        results["algorithm_analysis"] = {
-            "compliant_model_type": False,
-            "reason": "No algorithm provided"
-        }
-        overall_compliance = False
+        algorithm_results = node.evaluate_algorithm(algorithm_path)
 
-    results["compliant"] = overall_compliance
-    return results
+    return {
+        "dataset": dataset_results,
+        "algorithm": algorithm_results
+    }

@@ -11,6 +11,14 @@ class BiasDetectionNode:
         results = {}
         overall_compliance = True
 
+        # ✅ Guard: handle empty dataset
+        if not dataset_rows:
+            return {
+                "compliant": False,
+                "features": {},
+                "reason": "Dataset is empty or could not be read"
+            }
+
         for feature, threshold in self.thresholds.items():
             if feature in dataset_rows[0]:  # check if column exists
                 idx = dataset_rows[0].index(feature)

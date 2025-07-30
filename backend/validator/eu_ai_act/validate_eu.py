@@ -1,11 +1,13 @@
 import json
 import sys, os
+import csv
+import traceback
+
 # Add backend root to path
 BACKEND_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 if BACKEND_PATH not in sys.path:
     sys.path.append(BACKEND_PATH)
-import csv
-import traceback
+
 from validator.eu_ai_act.eu_bias_node import validate_bias
 from validator.eu_ai_act.eu_transparency_node import validate_transparency
 from validator.eu_ai_act.eu_fairness_node import validate_fairness
@@ -15,7 +17,6 @@ from validator.eu_ai_act.eu_explainability_node import validate_explainability
 from validator.eu_ai_act.eu_robustness_node import validate_robustness
 from validator.eu_ai_act.eu_oversight_node import validate_oversight
 
-# ✅ Import audit logger
 from backend.logging.audit_logger import save_audit_log
 
 DEBUG_LOG = "/tmp/debug.log"
@@ -32,98 +33,53 @@ def to_json_safe(data):
     except Exception:
         return str(data)
 
-def read_dataset(path):
-    """Minimal CSV reader to avoid pandas/numpy dependencies."""
-    if not path or not os.path.exists(path):
-        return None
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            rows = [row for row in reader]
-            return {
-                "columns": reader.fieldnames or [],
-                "rows": rows
-            }
-    except Exception as e:
-        log_error(e)
-        return None
+def normalize_node_output(result, dataset_path, algorithm_path):
+    """Ensure every node returns {dataset:..., algorithm:...} structure."""
+    if not isinstance(result, dict):
+        return {"dataset": {"status": "error", "message": "Invalid node output"}, 
+                "algorithm": {"status": "error", "message": "Invalid node output"}}
+
+    # If already in dataset/algorithm format, return as-is
+    if "dataset" in result or "algorithm" in result:
+        if "dataset" not in result:
+            result["dataset"] = {"status": "skipped", "message": "No dataset provided"}
+        if "algorithm" not in result:
+            result["algorithm"] = {"status": "skipped", "message": "No algorithm provided"}
+        return result
+
+    # Wrap single result in both keys if needed
+    return {
+        "dataset": result if dataset_path else {"status": "skipped", "message": "No dataset provided"},
+        "algorithm": result if algorithm_path else {"status": "skipped", "message": "No algorithm provided"}
+    }
 
 def validate_eu_framework(dataset_path=None, algorithm_path=None):
     """Validate dataset + algorithm for EU AI Act compliance."""
     results = {}
 
-    # ✅ Load dataset into minimal structure
-    dataset_obj = read_dataset(dataset_path) if dataset_path else None
+    nodes = {
+        "bias": validate_bias,
+        "transparency": validate_transparency,
+        "fairness": validate_fairness,
+        "accountability": validate_accountability,
+        "risk": validate_risk,
+        "explainability": validate_explainability,
+        "robustness": validate_robustness,
+        "oversight": validate_oversight
+    }
 
-    # === Bias Node ===
-    try:
-        results['bias'] = to_json_safe(validate_bias(dataset_path, algorithm_path))
-    except Exception as e:
-        log_error(e)
-        results['bias'] = {"status": "error", "message": str(e)}
+    for node_name, node_func in nodes.items():
+        try:
+            raw_result = node_func(dataset_path, algorithm_path)
+            results[node_name] = to_json_safe(
+                normalize_node_output(raw_result, dataset_path, algorithm_path)
+            )
+        except Exception as e:
+            log_error(e)
+            results[node_name] = {"dataset": {"status": "error", "message": str(e)},
+                                  "algorithm": {"status": "error", "message": str(e)}}
 
-    # === Transparency ===
-    try:
-        results['transparency'] = to_json_safe(
-            validate_transparency(dataset_path) if dataset_path else {"status": "skipped", "message": "No dataset provided"}
-        )
-    except Exception as e:
-        log_error(e)
-        results['transparency'] = {"status": "error", "message": str(e)}
-
-    # === Fairness ===
-    try:
-        results['fairness'] = to_json_safe(
-            validate_fairness(dataset_path, algorithm_path) if dataset_path else {"status": "skipped", "message": "No dataset provided"}
-        )
-    except Exception as e:
-        log_error(e)
-        results['fairness'] = {"status": "error", "message": str(e)}
-
-    # === Accountability ===
-    try:
-        results['accountability'] = to_json_safe(validate_accountability(dataset_path, algorithm_path))
-    except Exception as e:
-        log_error(e)
-        results['accountability'] = {"status": "error", "message": str(e)}
-
-    # === Risk ===
-    try:
-        results['risk'] = to_json_safe(
-            validate_risk(dataset_path, algorithm_path) if dataset_path or algorithm_path else {"status": "skipped", "message": "No inputs provided"}
-        )
-    except Exception as e:
-        log_error(e)
-        results['risk'] = {"status": "error", "message": str(e)}
-
-    # === Explainability ===
-    try:
-        results['explainability'] = to_json_safe(
-            validate_explainability(dataset_path, algorithm_path) if dataset_path or algorithm_path else {"status": "skipped", "message": "No inputs provided"}
-        )
-    except Exception as e:
-        log_error(e)
-        results['explainability'] = {"status": "error", "message": str(e)}
-
-    # === Robustness ===
-    try:
-        results['robustness'] = to_json_safe(
-            validate_robustness(dataset_path, algorithm_path) if dataset_path or algorithm_path else {"status": "skipped", "message": "No inputs provided"}
-        )
-    except Exception as e:
-        log_error(e)
-        results['robustness'] = {"status": "error", "message": str(e)}
-
-    # === Oversight ===
-    try:
-        results['oversight'] = to_json_safe(
-            validate_oversight(dataset_path, algorithm_path) if dataset_path or algorithm_path else {"status": "skipped", "message": "No inputs provided"}
-        )
-    except Exception as e:
-        log_error(e)
-        results['oversight'] = {"status": "error", "message": str(e)}
-    
-    # ✅ Save audit log to DynamoDB + local JSON
+    # ✅ Save audit log
     save_audit_log(
         results=results,
         framework="EU AI Act",
