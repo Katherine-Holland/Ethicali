@@ -17,7 +17,11 @@ from validator.eu_ai_act.eu_explainability_node import validate_explainability
 from validator.eu_ai_act.eu_robustness_node import validate_robustness
 from validator.eu_ai_act.eu_oversight_node import validate_oversight
 
-from backend.logging.audit_logger import save_audit_log
+# ✅ Using logging.audit_logger now
+from audit_logger import save_audit_log
+
+print("✅ Running validate_eu.py from S3 bundle!")
+
 
 DEBUG_LOG = "/tmp/debug.log"
 
@@ -79,7 +83,7 @@ def validate_eu_framework(dataset_path=None, algorithm_path=None):
             results[node_name] = {"dataset": {"status": "error", "message": str(e)},
                                   "algorithm": {"status": "error", "message": str(e)}}
 
-    # ✅ Save audit log
+    # ✅ Save audit log to DynamoDB and local
     save_audit_log(
         results=results,
         framework="EU AI Act",

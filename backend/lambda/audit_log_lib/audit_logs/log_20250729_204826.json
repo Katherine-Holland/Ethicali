@@ -1,0 +1,89 @@
+{
+    "id": "35a9d4bd-b92c-47c7-bb6a-0c16306be9a8",
+    "timestamp": "2025-07-29T20:48:26.440030Z",
+    "framework": "EU AI Act",
+    "dataset": null,
+    "algorithm": "sample_algorithm.py",
+    "results": {
+        "bias": {
+            "dataset": {
+                "status": "skipped",
+                "message": "No dataset provided"
+            },
+            "algorithm": {
+                "status": "error",
+                "message": "'BiasDetectionNode' object has no attribute 'evaluate_algorithm'"
+            }
+        },
+        "transparency": {
+            "status": "skipped",
+            "message": "No dataset provided"
+        },
+        "fairness": {
+            "status": "skipped",
+            "message": "No dataset provided"
+        },
+        "accountability": {
+            "dataset": {
+                "status": "skipped",
+                "message": "No dataset provided"
+            },
+            "algorithm": {
+                "compliant": true,
+                "missing_keys": [],
+                "reason": "All keys present"
+            }
+        },
+        "risk": {
+            "status": "skipped",
+            "message": "No dataset provided"
+        },
+        "explainability": {
+            "dataset_analysis": {
+                "compliant": false,
+                "reason": "No dataset provided"
+            },
+            "algorithm_analysis": {
+                "model_type_detected": null,
+                "compliant_model_type": false,
+                "feature_count": null,
+                "feature_compliance": false,
+                "reason": "Model type not clearly explainable"
+            },
+            "compliant": false
+        },
+        "robustness": {
+            "dataset_analysis": {
+                "compliant": false,
+                "reason": "No dataset provided"
+            },
+            "compliant": false
+        },
+        "oversight": {
+            "algorithm_analysis": {
+                "compliant": true,
+                "fields": {
+                    "human_review_enabled": {
+                        "compliant": true,
+                        "value": true,
+                        "reason": "OK"
+                    },
+                    "intervention_points": {
+                        "compliant": true,
+                        "value": [
+                            "manual_review"
+                        ],
+                        "reason": "OK"
+                    },
+                    "override_capability": {
+                        "compliant": true,
+                        "value": true,
+                        "reason": "OK"
+                    }
+                }
+            },
+            "compliant": true
+        }
+    },
+    "hash": "02a80582cbf1999152886e8ac7f7f8fb5675e93d3fd86cc17752fec4c8bb7e1e"
+}

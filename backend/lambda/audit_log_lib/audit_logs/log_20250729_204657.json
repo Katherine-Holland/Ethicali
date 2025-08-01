@@ -1,0 +1,196 @@
+{
+    "id": "551cdf73-b2db-4f5b-9b57-ab76455c914f",
+    "timestamp": "2025-07-29T20:46:57.417786Z",
+    "framework": "EU AI Act",
+    "dataset": "synthetic_compliant_dataset.csv",
+    "algorithm": null,
+    "results": {
+        "bias": {
+            "dataset": {
+                "compliant": true,
+                "features": {
+                    "gender": {
+                        "compliant": true,
+                        "representation": {
+                            "male": 0.5,
+                            "female": 0.5
+                        },
+                        "below_threshold": {},
+                        "threshold": 0.2,
+                        "reason": "Meets threshold"
+                    },
+                    "ethnicity": {
+                        "compliant": true,
+                        "representation": {
+                            "group1": 0.4,
+                            "group2": 0.3,
+                            "group3": 0.3
+                        },
+                        "below_threshold": {},
+                        "threshold": 0.1,
+                        "reason": "Meets threshold"
+                    },
+                    "age_group": {
+                        "compliant": true,
+                        "representation": {
+                            "18-25": 0.4,
+                            "26-35": 0.3,
+                            "36-45": 0.3
+                        },
+                        "below_threshold": {},
+                        "threshold": 0.15,
+                        "reason": "Meets threshold"
+                    }
+                }
+            },
+            "algorithm": {
+                "status": "skipped",
+                "message": "No algorithm provided"
+            }
+        },
+        "transparency": {
+            "compliant": true,
+            "missing_columns": [],
+            "reason": "All required columns present"
+        },
+        "fairness": {
+            "compliant": true,
+            "features": {
+                "gender": {
+                    "compliant": true,
+                    "representation": {
+                        "male": 0.5,
+                        "female": 0.5
+                    },
+                    "below_threshold": {},
+                    "threshold": 0.15,
+                    "reason": "Meets threshold"
+                },
+                "ethnicity": {
+                    "compliant": true,
+                    "representation": {
+                        "group1": 0.4,
+                        "group2": 0.3,
+                        "group3": 0.3
+                    },
+                    "below_threshold": {},
+                    "threshold": 0.1,
+                    "reason": "Meets threshold"
+                },
+                "age_group": {
+                    "compliant": true,
+                    "representation": {
+                        "18-25": 0.4,
+                        "26-35": 0.3,
+                        "36-45": 0.3
+                    },
+                    "below_threshold": {},
+                    "threshold": 0.1,
+                    "reason": "Meets threshold"
+                }
+            }
+        },
+        "accountability": {
+            "dataset": {
+                "compliant": true,
+                "missing_metadata": [],
+                "reason": "All metadata present"
+            },
+            "algorithm": {
+                "status": "skipped",
+                "message": "No algorithm provided"
+            }
+        },
+        "risk": {
+            "compliant": false,
+            "high_risk_fields": {
+                "health_condition": {
+                    "present": false,
+                    "compliant": false,
+                    "reason": "Missing expected high-risk field"
+                },
+                "credit_score": {
+                    "present": false,
+                    "compliant": false,
+                    "reason": "Missing expected high-risk field"
+                },
+                "biometric_data": {
+                    "present": false,
+                    "compliant": false,
+                    "reason": "Missing expected high-risk field"
+                }
+            },
+            "missing_data_report": {
+                "id": {
+                    "missing_ratio": 0.0,
+                    "compliant": true
+                },
+                "gender": {
+                    "missing_ratio": 0.0,
+                    "compliant": true
+                },
+                "ethnicity": {
+                    "missing_ratio": 0.0,
+                    "compliant": true
+                },
+                "age_group": {
+                    "missing_ratio": 0.0,
+                    "compliant": true
+                },
+                "timestamp": {
+                    "missing_ratio": 0.0,
+                    "compliant": true
+                },
+                "version": {
+                    "missing_ratio": 0.0,
+                    "compliant": true
+                },
+                "decision_log": {
+                    "missing_ratio": 0.0,
+                    "compliant": true
+                }
+            }
+        },
+        "explainability": {
+            "dataset_analysis": {
+                "feature_count": 7,
+                "max_allowed": 30,
+                "compliant": true,
+                "reason": "Acceptable number of features"
+            },
+            "algorithm_analysis": {
+                "compliant_model_type": false,
+                "reason": "No algorithm provided"
+            },
+            "compliant": false
+        },
+        "robustness": {
+            "dataset_analysis": {
+                "compliant": true,
+                "details": {
+                    "id": {
+                        "compliant": true,
+                        "mean_difference_ratio": 0.0018,
+                        "threshold": 0.1,
+                        "reason": "Stable under noise"
+                    },
+                    "version": {
+                        "compliant": true,
+                        "mean_difference_ratio": 0.0204,
+                        "threshold": 0.1,
+                        "reason": "Stable under noise"
+                    }
+                }
+            },
+            "compliant": true
+        },
+        "oversight": {
+            "algorithm_analysis": {
+                "compliant": false,
+                "reason": "No algorithm configuration provided"
+            },
+            "compliant": false
+        }
+    },
+    "hash": "bb20125884309890a92e9b35887089454434ba71f0e12afa6251914603fcd8ac"
+}

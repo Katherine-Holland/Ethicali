@@ -52,14 +52,15 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-# ✅ Lambda function
 resource "aws_lambda_function" "dataset_validation" {
-  filename         = "./../lambda/dataset_validation/lambda.zip"
-  function_name    = "datasetValidation"
-  handler          = "lambda_function.lambda_handler"
-  runtime          = "python3.11"
-  role             = aws_iam_role.lambda_exec.arn
-  timeout          = 10
+  function_name = "datasetValidation"
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.11"
+  role          = aws_iam_role.lambda_exec.arn
+  timeout       = 30
+  source_code_hash = filebase64sha256("${path.module}/../lambda/validator_bundle.zip")
+  filename         = "${path.module}/../lambda/validator_bundle.zip"
+
 }
 
 # API Gateway

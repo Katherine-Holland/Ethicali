@@ -1,0 +1,36 @@
+{
+  "agent_analysis": {
+    "status": "complete",
+    "overall_compliance": "Yes",
+    "results": {
+      "bias": {
+        "status": "Yes",
+        "details": "0 potentially biased response(s) found.",
+        "examples": [],
+        "eu_ai_act_articles": [
+          "Article 10 - Data & Data Governance",
+          "Article 5 - Prohibited Practices"
+        ]
+      },
+      "explainability": {
+        "status": "Yes",
+        "details": "0 unclear or short responses found.",
+        "examples": [],
+        "eu_ai_act_articles": [
+          "Article 13 - Transparency",
+          "Article 14 - Human Oversight"
+        ]
+      },
+      "consistency": {
+        "status": "Yes",
+        "details": "0 inconsistent answer(s) detected.",
+        "examples": [],
+        "eu_ai_act_articles": [
+          "Article 9 - Risk Management",
+          "Article 15 - Accuracy & Robustness"
+        ]
+      }
+    },
+    "conversation_length": 3
+  }
+}
