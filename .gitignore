@@ -1,5 +1,9 @@
 node_modules
 .env
+.env.*
+.env.bak
+venv/
+.venv/
 
 # Hardhat files
 /cache
