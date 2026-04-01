@@ -24,7 +24,7 @@ module.exports = {
       url: "http://127.0.0.1:8545",
     },
     sepolia: {
-      url: "https://eth-sepolia.g.alchemy.com/v2/REDACTED_ALCHEMY_KEY_1",
+      url: process.env.SEPOLIA_RPC_URL,
       accounts: [`0x${process.env.PRIVATE_KEY}`],
     },
   },

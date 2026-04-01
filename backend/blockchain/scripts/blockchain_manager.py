@@ -119,9 +119,14 @@ class BlockchainManager:
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "blockchain", "abi"))
 abi_path = os.path.join(base_dir, "contract_abi.json")
 
-# Updated deployed contract address
-blockchain_manager = BlockchainManager(
-    provider_url="https://eth-sepolia.g.alchemy.com/v2/REDACTED_ALCHEMY_KEY_2",
-    contract_address="0xE8D30d2031468a1B17e1BB06c142b06c9fd98f04",
-    abi_path=abi_path
-)
+# Instantiate only when run directly, not on import
+if __name__ == "__main__":
+    provider_url = os.getenv("SEPOLIA_RPC_URL")
+    contract_address = os.getenv("CONTRACT_ADDRESS")
+    if not provider_url or not contract_address:
+        raise ValueError("SEPOLIA_RPC_URL and CONTRACT_ADDRESS must be set in environment variables.")
+    blockchain_manager = BlockchainManager(
+        provider_url=provider_url,
+        contract_address=contract_address,
+        abi_path=abi_path
+    )

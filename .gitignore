@@ -47,10 +47,18 @@ debug.log
 # Local logging directories
 backend/logging/audit_logs/
 backend/logging/agent_drift_logs/
+backend/lambda/audit_log_lib/audit_logs/
+backend/lambda/audit_log_lib/agent_drift_logs/
 
 # Temp files
 temp/
 tests/*.json
+
+# Runtime artifacts
+response.json
+filetree.txt
+test.csv
+backend/lambda/output.json
 
 # Frontend compiled PDFs
 frontend/compliance_report.pdf

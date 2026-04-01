@@ -1,5 +1,9 @@
 from web3 import Web3
 import json
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class BlockchainManager:
     def __init__(self, contract_address, abi_path, provider_url):
@@ -33,7 +37,10 @@ class BlockchainManager:
             'gas': 3000000,
             'gasPrice': self.web3.toWei('20', 'gwei')
         })
-        signed_txn = self.web3.eth.account.signTransaction(txn, private_key="YOUR_PRIVATE_KEY")  # Replace with your private key
+        private_key = os.getenv("PRIVATE_KEY")
+        if not private_key:
+            raise ValueError("PRIVATE_KEY environment variable is not set.")
+        signed_txn = self.web3.eth.account.signTransaction(txn, private_key=private_key)
         tx_hash = self.web3.eth.sendRawTransaction(signed_txn.rawTransaction)
         return self.web3.toHex(tx_hash)
     
