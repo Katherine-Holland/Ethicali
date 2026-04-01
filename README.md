@@ -1,123 +1,163 @@
-# Ethicali AI Assurance Platform
+# Ethicali — AI Compliance Assurance Platform
 
-This repository contains the full codebase for the Ethicali AI assurance platform. The system enables compliance validation of datasets and algorithms against leading AI governance frameworks including:
+Ethicali is a full-stack AI governance platform that automatically audits datasets and algorithms against major regulatory frameworks, then writes tamper-proof compliance records to the Ethereum blockchain.
 
-- EU AI Act
-- ISO 42001
-- NIST AI RMF
-- California, Texas, and New York AI requirements
+Built as a response to the growing regulatory pressure on AI systems — EU AI Act enforcement, ISO 42001 certification, and US state-level AI laws — Ethicali gives organisations a verifiable, auditable trail of compliance decisions.
+
+---
+
+## What It Does
+
+Upload a dataset or algorithm and Ethicali runs it through a multi-node validation pipeline covering:
+
+| Framework | Coverage |
+|---|---|
+| **EU AI Act** | Bias, fairness, transparency, explainability, robustness, risk classification, accountability, human oversight |
+| **ISO 42001** | AI management system requirements |
+| **NIST AI RMF** | Govern, Map, Measure, Manage functions |
+| **US State Laws** | California, Texas, and New York AI requirements |
+
+Each validation run produces a structured compliance report. The report summary and a cryptographic hash of the full document are then written to a Solidity smart contract on the Ethereum Sepolia testnet — creating an immutable, timestamped record that cannot be altered after the fact.
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│                  Streamlit UI                        │
+│  Upload → Validate → Report → Blockchain Record     │
+└────────────────────┬────────────────────────────────┘
+                     │
+        ┌────────────▼────────────┐
+        │   Validation Pipeline   │
+        │  (multi-node per frame- │
+        │   work, AWS Lambda)     │
+        └────────────┬────────────┘
+                     │
+        ┌────────────▼────────────┐
+        │   EthicalAI.sol         │
+        │   Solidity smart        │
+        │   contract (Sepolia)    │
+        └─────────────────────────┘
+```
+
+**Stack:**
+- **Frontend:** Streamlit (Python)
+- **Validation engine:** Python, modular per-framework node architecture
+- **Cloud:** AWS Lambda + DynamoDB + S3 (Terraform-provisioned)
+- **Blockchain:** Solidity smart contract, Hardhat, Web3.py, Ethereum Sepolia testnet
+- **Audit logging:** Structured JSON audit trail with agent drift detection
+- **IaC:** Terraform
+
+---
+
+## Key Technical Features
+
+**Modular validator architecture** — Each compliance framework is broken into independent validation nodes (e.g. `eu_bias_node.py`, `eu_transparency_node.py`). Adding a new framework or updating a rule set requires no changes to the core pipeline.
+
+**On-chain compliance records** — The `EthicalAI` Solidity contract stores a summary, SHA hash, timestamp, and metadata for every compliance run. Records are append-only and owner-gated, providing a verifiable audit trail.
+
+**Agent drift detection** — The audit logging layer tracks behavioural drift in AI agent outputs over time, flagging deviations from baseline compliance scores.
+
+**Serverless deployment** — Validation runs execute as AWS Lambda functions, with results persisted to DynamoDB and S3. Infrastructure is fully defined in Terraform.
+
+---
 
 ## Repository Structure
 
 ```
-ethicalinew/
-├── app/                      # Streamlit UI
+Ethicali/
+├── app/                          # Streamlit UI
 ├── backend/
 │   ├── blockchain/
-│   │   ├── abi/              # Compiled ABI and metadata
-│   │   ├── contracts/        # Solidity smart contracts
-│   │   ├── scripts/          # Hardhat deployment scripts
-│   └── validator/            # Compliance logic (bias, transparency, etc.)
-├── frontend/                 # Web frontend (future)
-├── config/                   # Internal configuration files
-├── integrations/             # Placeholder for APIs (e.g., Slack, Chrome)
-├── tests/                    # Python + smart contract tests
-├── .env                      # Local dev secrets (excluded from git)
+│   │   ├── contracts/            # EthicalAI.sol smart contract
+│   │   ├── scripts/              # Deployment and interaction scripts
+│   │   └── abi/                  # Compiled ABI
+│   ├── validator/
+│   │   ├── eu_ai_act/            # 9 validation nodes
+│   │   ├── iso_42001/
+│   │   ├── nist_rmf/
+│   │   ├── california/
+│   │   ├── texas/
+│   │   └── new_york/
+│   ├── lambda/                   # AWS Lambda handlers + audit logging
+│   └── terraform/                # Infrastructure as code
+├── config/
+├── integrations/
+├── tests/
 ├── hardhat.config.js
 └── requirements.txt
 ```
 
-## Prerequisites
+---
 
-Make sure you have the following installed:
+## Getting Started
 
-- Node.js (v16+)
+### Prerequisites
+
+- Node.js v16+
 - Python 3.9+
-- MetaMask wallet (Sepolia testnet funded)
+- MetaMask wallet (Sepolia testnet)
 - [Alchemy](https://www.alchemy.com/) Sepolia RPC endpoint
-- Gitpod or VS Code (recommended for environment)
 
-## Environment Variables
+### Environment Variables
 
-Create a `.env` file in the root directory:
+Create a `.env` file in the root:
 
 ```env
-PRIVATE_KEY=your_metamask_private_key (without 0x)
-METAMASK_ACCOUNT_ADDRESS=your_wallet_address (starting with 0x)
+PRIVATE_KEY=your_wallet_private_key_without_0x
+METAMASK_ACCOUNT_ADDRESS=0x_your_wallet_address
 SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_API_KEY
+CONTRACT_ADDRESS=0x_your_deployed_contract_address
 ```
 
-## Installation
-
-Install all required dependencies:
+### Install Dependencies
 
 ```bash
 npm install
 pip install -r requirements.txt
 ```
 
-## Smart Contract Deployment
-
-Compile and deploy the `EthicalAI` contract to the Sepolia testnet:
+### Deploy the Smart Contract
 
 ```bash
 npx hardhat compile
 npx hardhat run backend/blockchain/scripts/deploy.js --network sepolia
 ```
 
-The deployment script outputs:
-- Contract address
-- ABI saved to `backend/blockchain/abi/contract_abi.json`
-
-Ensure the ABI path matches the expected structure in your blockchain integration script.
-
-## Streamlit Application
-
-To launch the interface:
+### Run the Application
 
 ```bash
 streamlit run app/app.py
 ```
 
-Tabs include:
-- Upload Dataset
-- Upload Algorithm
-- Combined Analysis
-- Fetch Blockchain Results
-- Generate Compliance Report
+---
 
-## Blockchain Integration
+## Smart Contract
 
-Smart contract interactions are managed via the `BlockchainManager` class, located in the backend. The class allows:
+The `EthicalAI` contract (Solidity ^0.8.0) exposes three functions:
 
-- Uploading a compliance summary and hash
-- Fetching a compliance record by ID
-- Pulling event logs from the blockchain
+```solidity
+addComplianceRecord(string summary, string hash, string metadata)
+getComplianceRecord(uint recordId)
+getTotalRecords()
+```
 
-Ensure the correct contract address and ABI path are configured in `BlockchainManager`.
+Records are owner-gated and emit a `ComplianceRecordAdded` event on every write, making them indexable by any blockchain explorer or subgraph.
 
-## Deployment Targets
+---
 
-| Component       | Network     | Status         |
-|----------------|-------------|----------------|
-| Smart Contract | Sepolia     | ✅ Connected    |
-| Streamlit App  | Localhost   | ✅ Operational  |
-| Frontend (Web) | TBA         | 🚧 In Progress |
+## Roadmap
 
-## Internal Notes
+- PDF compliance report export
+- Full NIST AI RMF and ISO 42001 node coverage
+- Slack and browser extension integrations
+- Expanded US state law coverage
+- Mainnet deployment option
 
-- All `.env` values are excluded via `.gitignore`.
-- Default contract output location: `backend/blockchain/abi/contract_abi.json`
-- Future frameworks (NIST, state laws) will be implemented as modular validators.
-- Always verify ABI structure after contract changes.
-
-## Next Steps
-
-- Rebuild Streamlit tabs (if reset)
-- Add PDF export and full framework mapping
-- Integrate Slack + Chrome API hooks
-- Expand compliance frameworks (USA state + global)
+---
 
 ## Contact
 
-For internal use.
+[Katherine Holland](https://github.com/Katherine-Holland)
